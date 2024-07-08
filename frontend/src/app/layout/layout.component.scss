@@ -32,5 +32,7 @@
   ::ng-deep .mat-mdc-list-item.active {
     background: #d2c6ef !important; /* Change this to your desired active color */
   }
-  
+  .example-spacer {
+    flex: 1 1 auto;
+  }
   

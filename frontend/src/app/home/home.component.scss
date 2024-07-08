@@ -1,0 +1,106 @@
+.notes-container {
+  display: flex;
+  flex-flow: column wrap;
+  align-content: space-evenly;
+  /* Your container needs a fixed height, and it 
+   * needs to be taller than your tallest column. */
+  height: max-content;
+  
+  /* Optional */
+  // background-color: #f7f7f7;
+  border-radius: 3px;
+  padding: 20px;
+  width: 100%;
+  margin: 40px auto;
+  counter-reset: items;
+}
+
+.item {
+  width: 24%;
+  /* Optional */
+  position: relative;
+  margin-bottom: 2%;
+  // border-radius: 3px;
+  background-color: #a1cbfa;
+  // border: 1px solid #4290e2;
+  // box-shadow: 0 2px 2px rgba(0,90,250,0.05),
+  //   0 4px 4px rgba(0,90,250,0.05),
+  //   0 8px 8px rgba(0,90,250,0.05),
+  //   0 16px 16px rgba(0,90,250,0.05);
+  // color: #fff;
+  // padding: 15px;
+  // box-sizing: border-box;
+}
+.item-content {
+  // max-height: 220px;
+  overflow: hidden;
+}
+.btn-read-more {
+  display: none;
+}
+
+ /* Just to print out numbers */
+div.item::before {
+  // counter-increment: items;
+  // content: counter(items);
+  // color: black;
+}
+
+/* Re-order items into 3 rows */
+// .item:nth-of-type(4n+1) { order: 1; }
+// .item:nth-of-type(4n+2) { order: 2; }
+// .item:nth-of-type(4n+3) { order: 3; }
+// .item:nth-of-type(4n)   { order: 4; }
+
+/* Force new columns */
+.break {
+  flex-basis: 100%;
+  width: 0;
+  border: 1px solid #ddd;
+  margin: 0;
+  content: "";
+  padding: 0;
+}
+
+body { font-family: sans-serif; }
+h3 { text-align: center; }
+
+.notes-box {
+  margin: 0 auto;
+}
+
+@media (min-width: 614px) {
+  .notes-box {
+    width: 504px;
+  }
+}
+
+@media (min-width: 840px) {
+  .notes-box {
+    width: 752px;
+  }
+}
+
+@media (min-width: 1100px) {
+  .notes-box {
+    width: 1000px;
+  }
+}
+
+@media (min-width: 1500px) {
+  .notes-box {
+    width: 1248px;
+  }
+}
+
+@media (min-width: 1800px) {
+  .notes-box {
+    width: 1548px;
+  }
+}
+
+@media (min-width: 2200px) {
+  .notes-box {
+    width: 1848px;
+  }
+}
