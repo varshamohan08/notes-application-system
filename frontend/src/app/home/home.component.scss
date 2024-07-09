@@ -71,36 +71,36 @@ h3 { text-align: center; }
 
 @media (min-width: 614px) {
   .notes-box {
-    width: 504px;
+    max-width: 504px;
   }
 }
 
 @media (min-width: 840px) {
   .notes-box {
-    width: 752px;
+    max-width: 752px;
   }
 }
 
 @media (min-width: 1100px) {
   .notes-box {
-    width: 1000px;
+    max-width: 1000px;
   }
 }
 
 @media (min-width: 1500px) {
   .notes-box {
-    width: 1248px;
+    max-width: 1248px;
   }
 }
 
 @media (min-width: 1800px) {
   .notes-box {
-    width: 1548px;
+    max-width: 1548px;
   }
 }
 
 @media (min-width: 2200px) {
   .notes-box {
-    width: 1848px;
+    max-width: 1848px;
   }
 }
