@@ -7,7 +7,8 @@ import {MatInputModule} from '@angular/material/input';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { BackendService } from '../backend.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
+
 @Component({
   selector: 'app-sign-in',
   standalone: true,
@@ -18,8 +19,7 @@ import { HttpClientModule } from '@angular/common/http';
     MatIconModule,
     MatInputModule,
     ReactiveFormsModule,
-    MatButtonModule, 
-    HttpClientModule
+    MatButtonModule,
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
@@ -55,18 +55,18 @@ export class SignInComponent {
       const { email, password } = this.signInForm.value;
       console.log('Email:', email);
       console.log('Password:', password);
-      this.backendService.postDataBeforeLogin('login', this.signInForm.value).subscribe((res)=>{
-        console.log(res);
-        if(res.success) {
-          console.log('success');
-        }
-        else {
-          console.log(res.details);
-        }
+      // this.backendService.postDataBeforeLogin('login', this.signInForm.value).subscribe((res)=>{
+      //   console.log(res);
+      //   if(res.success) {
+      //     console.log('success');
+      //   }
+      //   else {
+      //     console.log(res.details);
+      //   }
         
-      },(error)=>{
-        console.log('error')
-      })
+      // },(error)=>{
+      //   console.log('error')
+      // })
     }
   }
 
