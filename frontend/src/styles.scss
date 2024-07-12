@@ -57,3 +57,5 @@ html, body {
     position: relative;
     z-index: 2; /* Ensures content is above the overlay */
   }
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

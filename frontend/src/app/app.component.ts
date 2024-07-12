@@ -10,7 +10,7 @@ import { routes } from './app.routes';
   standalone: true,
   imports: [
     RouterOutlet,
-    BrowserModule,
+    // BrowserModule,
   ],
   providers: [
     // importProvidersFrom(provideHttpClient(withInterceptorsFromDi()))

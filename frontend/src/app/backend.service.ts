@@ -8,12 +8,16 @@ import { catchError, Observable, throwError } from 'rxjs';
 })
 export class BackendService {
   hostAddress = 'http://localhost:8000/';
-  token = localStorage.getItem('access_token') || ''
+  token = '';
 
   constructor(
     private http: HttpClient,
     private router: Router,
-  ) {}
+  ) {
+    if (typeof localStorage !== 'undefined') {
+      this.token = localStorage.getItem('access_token') || '';
+    }
+  }
 
   postDataBeforeLogin(url: string, data: any): Observable<any> {
     const headers = new HttpHeaders({

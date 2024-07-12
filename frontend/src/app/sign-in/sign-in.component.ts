@@ -55,18 +55,18 @@ export class SignInComponent {
       const { email, password } = this.signInForm.value;
       console.log('Email:', email);
       console.log('Password:', password);
-      // this.backendService.postDataBeforeLogin('login', this.signInForm.value).subscribe((res)=>{
-      //   console.log(res);
-      //   if(res.success) {
-      //     console.log('success');
-      //   }
-      //   else {
-      //     console.log(res.details);
-      //   }
+      this.backendService.postDataBeforeLogin('login', this.signInForm.value).subscribe((res)=>{
+        console.log(res);
+        if(res.success) {
+          console.log('success');
+        }
+        else {
+          console.log(res.details);
+        }
         
-      // },(error)=>{
-      //   console.log('error')
-      // })
+      },(error)=>{
+        console.log('error')
+      })
     }
   }
 
@@ -77,7 +77,19 @@ export class SignInComponent {
       console.log('Last Name:', last_name);
       console.log('Email:', email);
       console.log('Password:', password);
-      // Add your registration logic here
+
+      this.backendService.postDataBeforeLogin('sign_up', this.signUpForm.value).subscribe((res)=>{
+        console.log(res);
+        if(res.success) {
+          console.log('success');
+        }
+        else {
+          console.log(res.details);
+        }
+        
+      },(error)=>{
+        console.log('error')
+      })
     }
   }
   
