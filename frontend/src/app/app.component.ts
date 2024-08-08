@@ -11,6 +11,7 @@ import { routes } from './app.routes';
   imports: [
     RouterOutlet,
     // BrowserModule,
+    
   ],
   providers: [
     // importProvidersFrom(provideHttpClient(withInterceptorsFromDi()))
@@ -20,4 +21,5 @@ import { routes } from './app.routes';
 })
 export class AppComponent {
   title = 'frontend';
+  
 }

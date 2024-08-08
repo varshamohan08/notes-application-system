@@ -44,6 +44,16 @@ INSTALLED_APPS = [
     'user_app',
 ]
 
+# Session timeout in seconds (8 hours = 8 * 60 * 60)
+SESSION_COOKIE_AGE = 8 * 60 * 60  # 28800 seconds
+
+# Expire the session when the user closes the browser
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Configure Session Engine (Optional, default is 'django.contrib.sessions.backends.db')
+# Example: Using cached sessions
+# SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -53,7 +63,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'backend.middleware.CustomExceptionHandlerMiddleware'
+    'backend.middleware.CustomExceptionHandlerMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'

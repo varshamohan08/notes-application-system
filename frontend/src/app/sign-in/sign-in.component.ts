@@ -8,7 +8,23 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { BackendService } from '../backend.service';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule, ToastrService } from 'ngx-toastr';
+import { CommonModule } from '@angular/common';
+import { AuthService } from '../auth.service';
 
+export function PasswordMatchValidator(control: FormGroup) {
+  const password = control.get('password');
+  const confirmPassword = control.get('confirmPassword');
+
+  if (password && confirmPassword && password.value !== confirmPassword.value) {
+    confirmPassword.setErrors({ passwordMismatch: true });
+  } else {
+    confirmPassword?.setErrors(null);
+  }
+  return null;
+}
 @Component({
   selector: 'app-sign-in',
   standalone: true,
@@ -20,6 +36,9 @@ import { HttpClient } from '@angular/common/http';
     MatInputModule,
     ReactiveFormsModule,
     MatButtonModule,
+    CommonModule
+    // BrowserAnimationsModule, // required animations module
+    // ToastrModule.forRoot(),
   ],
   templateUrl: './sign-in.component.html',
   styleUrl: './sign-in.component.scss',
@@ -34,6 +53,9 @@ export class SignInComponent {
   constructor(
     private fb: FormBuilder,
     private backendService: BackendService,
+    private router: Router,
+    private toastr: ToastrService,
+    private authService: AuthService
   ) {
     this.signInForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -46,8 +68,12 @@ export class SignInComponent {
       password: ['', [
         Validators.required,
         Validators.pattern('^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$')
+      ]],
+      confirmPassword:['', [
+        Validators.required,
+
       ]]
-    });
+    }, { validator: PasswordMatchValidator });
   }
 
   onSubmit() {
@@ -59,6 +85,14 @@ export class SignInComponent {
         console.log(res);
         if(res.success) {
           console.log('success');
+          this.authService.setToken(res.access_token, res.user_details)
+          setTimeout(() => {
+            console.log(this.authService.isAuthenticated());
+            
+            if (this.authService.isAuthenticated()) {
+              this.router.navigateByUrl('');
+            }
+          }, 5000);
         }
         else {
           console.log(res.details);
@@ -72,26 +106,35 @@ export class SignInComponent {
 
   onSignUpSubmit() {
     if (this.signUpForm.valid) {
-      const { first_name, last_name, email, password } = this.signUpForm.value;
-      console.log('First Name:', first_name);
-      console.log('Last Name:', last_name);
-      console.log('Email:', email);
-      console.log('Password:', password);
+        const { first_name, last_name, email, password } = this.signUpForm.value;
+        console.log('First Name:', first_name);
+        console.log('Last Name:', last_name);
+        console.log('Email:', email);
+        console.log('Password:', password);
 
-      this.backendService.postDataBeforeLogin('sign_up', this.signUpForm.value).subscribe((res)=>{
-        console.log(res);
-        if(res.success) {
-          console.log('success');
-        }
-        else {
-          console.log(res.details);
-        }
-        
-      },(error)=>{
-        console.log('error')
-      })
+        this.backendService.postDataBeforeLogin('sign_up', this.signUpForm.value).subscribe((res) => {
+            console.log(res);
+            if (res.success) {
+                console.log('success');
+                
+                new Promise((resolve) => {
+                  localStorage.setItem('access_token', res.access_token);
+                  localStorage.setItem('userdetails', JSON.stringify(res.user_details));
+                  resolve(localStorage.getItem('access_token') == res.access_token);
+                }).then(() => {
+                  this.router.navigateByUrl('');
+                });
+            } else {
+              this.toastr.error('Error', res.details)
+                console.log(res);
+            }
+        }, (error) => {
+          this.toastr.error('Error', error)
+            console.log('error');
+        });
     }
-  }
+}
+
   
   clickEvent(event: MouseEvent) {
     // this.hide.set(!this.hide());

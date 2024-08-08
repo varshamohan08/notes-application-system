@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { debounceTime } from 'rxjs/operators';
@@ -7,11 +7,14 @@ import { LayoutComponent } from '../layout/layout.component';
 import {MatCardModule} from '@angular/material/card';
 import {MatChipsModule} from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
+import { BackendService } from '../backend.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
+    CommonModule,
     LayoutComponent,
     MatGridListModule,
     MatCardModule,
@@ -23,6 +26,16 @@ import { MatRippleModule } from '@angular/material/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnDestroy {
+
+  notes_lst:any = []
+
+  constructor(
+    private backendService: BackendService,
+    private cdr: ChangeDetectorRef
+    
+  ) {
+    
+  }
 
   private resizeObserver!: ResizeObserver;
 
@@ -48,7 +61,10 @@ export class HomeComponent implements OnDestroy {
   }
 
 private reorderItems(): void {
-  const container = document.getElementById('dynamic-container');
+  // const container = null
+  if (typeof document !== 'undefined') {
+    const container = document.getElementById('dynamic-container');
+  // }
   if (!container) return;
   
 
@@ -104,7 +120,7 @@ private reorderItems(): void {
   // Set the container height to the height of the tallest column
   container.style.height = `${Math.max(...columnHeights)}px`;
 }
-
+}
 
 
 
@@ -123,6 +139,25 @@ private getColumnCount(containerWidth: number): number {
 }
 
 
-  // ngOnDestroy(): void {
-  // }
+  ngOnInit(): void {
+    this.getData()
+  }
+  getData() {
+    this.backendService.getData('notes/').subscribe((res)=> {
+      if(res.success) {
+        console.log('success');
+        this.notes_lst = res.details
+        this.cdr.detectChanges();
+        // setTimeout(() => {
+          this.reorderItems()
+        // }, 50);
+      }
+      else {
+        console.log(res.details);
+      }
+      
+    },(error)=>{
+      console.log('error')
+    })
+  }
 }

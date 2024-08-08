@@ -1,7 +1,14 @@
 <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
   <mat-toolbar class="example-toolbar">
-    <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
-    <h1 class="example-app-name">Notes</h1>
+    <button mat-icon-button (click)="hideSideNav = !hideSideNav"><mat-icon>menu</mat-icon></button>
+    <h3 class="mt-1">
+      {{activeOption}}
+    </h3>
+    <div class="example-button-container">
+    <button mat-mini-fab aria-label="Example icon button with a delete icon" class="mx-3" (click)="open(content, 'Add New Note')">
+      <mat-icon>add</mat-icon>
+    </button>
+    </div>
     <span class="example-spacer"></span>
     <button mat-icon-button class="example-icon mx-2" aria-label="Example icon-button with sunny icon">
         <mat-icon>sunny</mat-icon>
@@ -19,7 +26,7 @@
 
   <mat-sidenav-container class="example-sidenav-container"
                         [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
-    <mat-sidenav #snav mode="side" fixedTopGap="56" class="shadow-sm" style="width: 32vh;">
+    <mat-sidenav #snav mode="side" fixedTopGap="56" class="shadow-sm" style="width: 32vh;" [opened]="!hideSideNav">
       <mat-nav-list>
         <a mat-list-item class="m-2 width-auto"
            [class.active]="activeOption === 'Notes'"
@@ -29,7 +36,10 @@
            (click)="setActiveOption('Reminders')">Reminders</a>
         <a mat-list-item class="m-2 width-auto"
            [class.active]="activeOption === 'Edit Labels'"
-           (click)="setActiveOption('Edit Labels')">Edit Labels</a>
+           (click)="open(content, 'Edit Labels')">Edit Labels</a>
+        <a mat-list-item class="m-2 width-auto" *ngFor="let label of label_lst"
+           [class.active]="activeOption === label.name"
+           (click)="setActiveOption(label.name)">{{label.name}}</a>
         <a mat-list-item class="m-2 width-auto"
            [class.active]="activeOption === 'Archive'"
            (click)="setActiveOption('Archive')">Archive</a>
@@ -43,4 +53,54 @@
       <ng-content></ng-content>
     </mat-sidenav-content>
   </mat-sidenav-container>
+  <!-- Modal Content Start -->
+  <ng-template #content let-modal>
+    <div class="modal-header">
+      <h5 class="modal-title m-0 px-3" id="modal-basic-title">Edit labels</h5>
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="modal-body m-0 p-0">
+      <div class="bg-white p-3 rounded box-shadow">
+        <!-- <table class="table table-borderless m-0">
+          <thead class="table-light">
+          </thead>
+          <tbody> -->
+            <div class="row my-3 mx-1">
+              <div class="mx-1 col-1" style="display: contents;">
+                <button mat-icon-button class="icon-cell" *ngIf="isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>close</mat-icon></button>
+                <button mat-icon-button class="icon-cell" *ngIf="!isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>add</mat-icon></button>
+              </div>
+              <div class="mx-1 col p-0">
+                <input type="text" class="no-outline input-cell fs-5" placeholder="Create new label" [(ngModel)]="newLabel" [disabled]="!isAddLabel">
+              </div>
+              <div class="mx-1 col-1" style="display: contents;">
+                <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="!isAddLabel"><mat-icon> </mat-icon></button>
+                <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="isAddLabel"><mat-icon>check</mat-icon></button>
+              </div>
+            </div>
+            <div class="row my-3 mx-1" *ngFor="let label of label_lst; let i = index" (mouseover)="label.bln_hovered = true" (mouseout)="label.bln_hovered = false">
+              <div class="mx-1 col-1" style="display: contents;">
+                <button mat-icon-button class="icon-cell" *ngIf="!label.bln_hovered"><mat-icon>label</mat-icon></button>
+                <button mat-icon-button class="icon-cell" *ngIf="label.bln_hovered" (click)="deleteLabel(i)"><mat-icon>delete</mat-icon></button>
+              </div>
+              <!-- <div class="mx-1 col-1" class="m-0 px-1 input-cell fs-5" id="label-{{label.id}}">{{label.name}}</div> -->
+              <div class="mx-1 col p-0" id="label-{{label.id}}">
+                <input type="text" class="no-outline input-cell fs-5" placeholder="Create new label" [(ngModel)]="label.name" [disabled]="label.bln_disabled">
+              </div>
+              <div class="mx-1 col-1" style="display: contents;">
+                <button mat-icon-button class="icon-cell" *ngIf="label.bln_disabled" (click)="enableEdit(i)"><mat-icon>edit</mat-icon></button>
+                <button mat-icon-button class="icon-cell" *ngIf="!label.bln_disabled" (click)="editLabel(i)"><mat-icon>save</mat-icon></button>
+              </div>
+            </div>
+          <!-- </tbody>
+        </table> -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button mat-raised-button extended class="rounded-3 p-4 fs-5" (click)="modal.close('Save click')">Done</button>
+    </div>
+  </ng-template>
+  <!-- Modal Content End -->
 </div>

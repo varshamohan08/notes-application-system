@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         return data
     
     def create(self, validated_data):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         password = validated_data.pop('password', None)
         instance = super().create(validated_data)
         if password:

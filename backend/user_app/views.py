@@ -38,8 +38,9 @@ class userLogin(APIView):
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
             user_details = {
-                'username': user.username,
-                'email': user.email
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name
             }
             return Response({"success":True, 'details': 'Success', 'access_token': access_token, 'userdetails': user_details}, status=status.HTTP_200_OK)
         else:
@@ -64,9 +65,21 @@ class userSignUp(APIView):
             
             if user_serializer.is_valid():
                 user_serializer.save()
+                user = authenticate(username=request.data.get('email'), password=request.data.get('password'))
 
-                return Response({"success":True, 'userdetails': user_serializer.data}, status=status.HTTP_200_OK)
-            return Response({"success":False, 'details': user_serializer.errors}, status=status.HTTP_200_OK)
+                if user:
+                    login(request, user)
+                    refresh = RefreshToken.for_user(user)
+                    access_token = str(refresh.access_token)
+                    user_details = {
+                        'email': user.email,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name
+                    }
+                    return Response({"success":True, 'details': 'Success', 'access_token': access_token, 'userdetails': user_details}, status=status.HTTP_200_OK)
+
+                # return Response({"success":True, 'userdetails': user_serializer.data}, status=status.HTTP_200_OK)
+            return Response({"success":False, 'details': user_serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         
 
 class userApi(APIView):
