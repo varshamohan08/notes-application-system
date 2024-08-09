@@ -5,7 +5,7 @@
       {{activeOption}}
     </h3>
     <div class="example-button-container">
-    <button mat-mini-fab aria-label="Example icon button with a delete icon" class="mx-3" (click)="open(content, 'Add New Note')">
+    <button mat-mini-fab aria-label="Example icon button with a delete icon" class="mx-3" (click)="open(notescontent, 'Add New Note')">
       <mat-icon>add</mat-icon>
     </button>
     </div>
@@ -104,3 +104,94 @@
   </ng-template>
   <!-- Modal Content End -->
 </div>
+
+
+  <!-- Notes Modal Content Start -->
+  <ng-template #notescontent let-modal>
+    <!-- <div class="modal-header">
+      <h5 class="modal-title m-0 px-3" id="modal-basic-title">Edit labels</h5>
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div> -->
+    
+    <div class="modal-body m-0 p-0">
+      <div class="mt-4 px-4" style="display: flex;">
+        <input type="text" class="no-outline input-cell fs-5" placeholder="Create new label" [(ngModel)]="newLabel" style="flex: 1 1 auto;">
+      </div>
+      <div class="bg-white p-3 rounded box-shadow">
+        <quill-editor style="border:0">
+          <!-- Quill Editor content will go here -->
+          <div quill-editor-toolbar style="border: 0;">
+            <span class="ql-formats">
+              <select class="ql-header" title="Header">
+                <option value="1"></option>
+                <option value="2"></option>
+                <option value="3"></option>
+                <option value="4"></option>
+                <option value="5"></option>
+                <option value="6"></option>
+                <option selected></option>
+              </select>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-bold" title="Bold"></button>
+              <button class="ql-italic" title="Italic"></button>
+              <button class="ql-underline" title="Underline"></button>
+              <button class="ql-strike" title="Strikethrough"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-blockquote" title="Blockquote"></button>
+              <button class="ql-code-block" title="Code Block"></button>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-link" title="Link"></button>
+              <button class="ql-image" title="Image"></button>
+              <!-- <button class="ql-formula" title="Formula"></button> -->
+            </span>
+            <span class="ql-formats">
+              <button class="ql-list" value="ordered" title="Ordered List"></button>
+              <button class="ql-list" value="bullet" title="Bullet List"></button>
+              <button class="ql-list" value="check" title="Checklist"></button>
+            </span>
+            <!-- <span class="ql-formats">
+              <button class="ql-script" value="sub" title="Subscript"></button>
+              <button class="ql-script" value="super" title="Superscript"></button>
+            </span> -->
+            <span class="ql-formats">
+              <button class="ql-indent" value="-1" title="Decrease Indent"></button>
+              <button class="ql-indent" value="+1" title="Increase Indent"></button>
+            </span>
+            <!-- <span class="ql-formats">
+              <select class="ql-color" title="Text Color"></select>
+              <select class="ql-background" title="Background Color"></select>
+            </span> -->
+            <span class="ql-formats">
+              <select class="ql-align" title="Align"></select>
+            </span>
+            <span class="ql-formats">
+              <button class="ql-clean" title="Remove Formatting"></button>
+            </span>
+          </div>
+        </quill-editor>
+      </div>
+    </div>
+    <div class="modal-footer p-1 mx-4">
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>notifications_active</mat-icon>
+      </button>
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>person_add</mat-icon>
+      </button>
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>archive</mat-icon>
+      </button>
+      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <span class="example-spacer"></span>
+      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="modal.close('Save click')">Cancel</button>
+      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="modal.close('Save click')">Done</button>
+    </div>
+  </ng-template>
+  <!-- Modal Content End -->

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,7 +49,7 @@ INSTALLED_APPS = [
 SESSION_COOKIE_AGE = 8 * 60 * 60  # 28800 seconds
 
 # Expire the session when the user closes the browser
-SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 # Configure Session Engine (Optional, default is 'django.contrib.sessions.backends.db')
 # Example: Using cached sessions
@@ -153,3 +154,10 @@ REST_FRAMEWORK = {
 
 # CORS headers
 CORS_ALLOW_ALL_ORIGINS = True  # For development only, refine this for production
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1440),  # 1 day
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}

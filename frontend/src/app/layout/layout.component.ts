@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
+import { QuillModule } from 'ngx-quill';
 
 @Component({
   selector: 'app-layout',
@@ -25,7 +26,8 @@ import { ToastrService } from 'ngx-toastr';
     CommonModule,
     MatFormFieldModule,
     MatInputModule,
-    FormsModule
+    FormsModule,
+    QuillModule
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
@@ -44,7 +46,7 @@ export class LayoutComponent {
     this.activeOption = option;
   }
   open(content:any,option: string) {
-    this.modalService.open(content, { centered: true });
+    this.modalService.open(content, { centered: true, size: 'xl', backdrop: 'static'});
     this.activeOption = option;
   }
 

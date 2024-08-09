@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { debounceTime } from 'rxjs/operators';
@@ -9,6 +9,9 @@ import {MatChipsModule} from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
 import { BackendService } from '../backend.service';
 import { CommonModule } from '@angular/common';
+import { QuillModule } from 'ngx-quill';
+import { FormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-home',
@@ -19,15 +22,35 @@ import { CommonModule } from '@angular/common';
     MatGridListModule,
     MatCardModule,
     MatChipsModule,
-    MatRippleModule
+    MatRippleModule,
+    QuillModule,
+    FormsModule,
+    MatIconModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnDestroy {
-
+  // @ViewChild('toolbar-container') toolbarContainer: ElementRef;
   notes_lst:any = []
+  editorContent = '';
+  quillModules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      ['link', 'image', 'formula'],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'align': [] }],
+      ['clean']
+    ]
+  };
+  
+  
 
   constructor(
     private backendService: BackendService,

@@ -92,7 +92,7 @@ export class SignInComponent {
             if (this.authService.isAuthenticated()) {
               this.router.navigateByUrl('');
             }
-          }, 5000);
+          }, 500);
         }
         else {
           console.log(res.details);
