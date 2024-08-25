@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, HostListener, ViewChild, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, Output, EventEmitter, SimpleChanges, Input } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { debounceTime } from 'rxjs/operators';
@@ -12,6 +12,10 @@ import { CommonModule } from '@angular/common';
 import { QuillModule } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { EditorComponent } from '../shared/editor/editor.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MatButtonModule } from '@angular/material/button';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +29,9 @@ import { MatIconModule } from '@angular/material/icon';
     MatRippleModule,
     QuillModule,
     FormsModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonModule,
+    EditorComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -33,7 +39,7 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class HomeComponent implements OnDestroy {
   // @ViewChild('toolbar-container') toolbarContainer: ElementRef;
-  notes_lst:any = []
+  @Input() notes_lst: any[] = [];
   editorContent = '';
   quillModules = {
     toolbar: [
@@ -49,13 +55,17 @@ export class HomeComponent implements OnDestroy {
       ['clean']
     ]
   };
+  textContent:any=null;
+  labelTitle:any=null;
+  editIndex:any=null
   
   
 
   constructor(
     private backendService: BackendService,
-    private cdr: ChangeDetectorRef
-    
+    private cdr: ChangeDetectorRef,
+    private modalService: NgbModal,
+    private toastr: ToastrService
   ) {
     
   }
@@ -83,6 +93,13 @@ export class HomeComponent implements OnDestroy {
     }
   }
 
+  // ngOnChanges(changes: SimpleChanges): void {
+  //   this.cdr.detectChanges();
+  //   if (changes['notes_lst']) {
+  //     this.reorderItems();
+  //   }
+  // }
+
 private reorderItems(): void {
   // const container = null
   if (typeof document !== 'undefined') {
@@ -102,7 +119,8 @@ private reorderItems(): void {
 
   // Initialize an array to keep track of the height of each column
   const columnHeights = Array(columns).fill(0);
-
+    console.log(columns);
+    
   items.forEach((item, index) => {
     // Determine which column this item should go to
     const column = index % columns;
@@ -121,10 +139,10 @@ private reorderItems(): void {
     // Check if the content height is greater than 220px and show the "Read more" button if it is
     const content = item.querySelector('.item-content') as HTMLElement;
     const readMoreButton = item.querySelector('.btn-read-more') as HTMLElement;
-    console.log(readMoreButton, content);
+    // console.log(readMoreButton, content);
     
     if (content && readMoreButton) {
-      console.log(content.clientHeight, content.clientHeight > 220);
+      // console.log(content.clientHeight, content.clientHeight > 220);
       
       if (content.clientHeight > 220) {
         readMoreButton.style.display = 'block';
@@ -183,4 +201,46 @@ private getColumnCount(containerWidth: number): number {
       console.log('error')
     })
   }
+  open(content:any,index: any) {
+    this.editIndex = index
+    this.textContent = this.notes_lst[index]['description']
+    this.labelTitle = this.notes_lst[index]['title']
+    this.modalService.open(content, { centered: true, size: 'xl', backdrop: 'static'});
+    // this.activeOption = option;
+  }
+  editModalDismiss() {
+    if (this.textContent !== this.notes_lst[this.editIndex]['description'] || this.labelTitle !== this.notes_lst[this.editIndex]['title']) {
+      let dctData = this.notes_lst[this.editIndex]
+      dctData['description'] = this.textContent
+      dctData['title'] = this.labelTitle
+      this.backendService.putData('notes/', dctData).subscribe((res)=> {
+        if(res.success) {
+          console.log('success');
+          this.notes_lst[this.editIndex]['description'] = this.textContent
+          this.notes_lst[this.editIndex]['title'] = this.labelTitle
+          this.modalService.dismissAll()
+        }
+        else {
+          this.toastr.error(res.details)
+        }
+      },(error)=>{
+        this.toastr.error(error)
+        console.log('error')
+      })
+    }
+    else {
+      this.notes_lst[this.editIndex]['description'] = this.textContent
+      this.notes_lst[this.editIndex]['title'] = this.labelTitle
+      this.modalService.dismissAll()
+    }
+  }
+  onNoteAdded(newNote: any) {
+    this.notes_lst.unshift(newNote);
+    this.cdr.detectChanges();
+    this.reorderItems()
+  }
+  // ngAfterViewChecked() {
+  //   this.reorderItems();
+  // }
+
 }

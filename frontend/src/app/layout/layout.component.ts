@@ -1,10 +1,11 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output, ViewChild } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { MatListModule } from '@angular/material/list';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatMenuModule } from '@angular/material/menu';
 import { BackendService } from '../backend.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
@@ -13,6 +14,8 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { QuillModule } from 'ngx-quill';
+import { HomeComponent } from '../home/home.component';
+import { EditorComponent } from '../shared/editor/editor.component';
 
 @Component({
   selector: 'app-layout',
@@ -27,7 +30,9 @@ import { QuillModule } from 'ngx-quill';
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
-    QuillModule
+    QuillModule,
+    EditorComponent,
+    MatMenuModule,
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
@@ -41,12 +46,19 @@ export class LayoutComponent {
   isHovered:boolean = false
   isAddLabel:boolean = false
   editingLabel = ''
+  newLabelDescription:any=null;
+  newLabelTitle:any=null;
+  @ViewChild(HomeComponent) home!: HomeComponent;
+  @Output() noteAdded: EventEmitter<any> = new EventEmitter<any>();
+
+  textContent:any=null;
+
 
   setActiveOption(option: string) {
     this.activeOption = option;
   }
-  open(content:any,option: string) {
-    this.modalService.open(content, { centered: true, size: 'xl', backdrop: 'static'});
+  open(content:any, size:string,option: string) {
+    this.modalService.open(content, { centered: true, size: size, backdrop: 'static'});
     this.activeOption = option;
   }
 
@@ -156,5 +168,35 @@ export class LayoutComponent {
       console.log('error')
     })
     
+  }
+  saveNewLabel() {
+    console.log(this.textContent, this.newLabelTitle);
+    if(this.textContent == null || this.textContent == undefined || this.textContent == '') {
+      return 0
+    }
+    else if(this.newLabelTitle == null || this.newLabelTitle == undefined || this.newLabelTitle == '') {
+      return 0
+    }
+    else {
+      this.backendService.postData('notes/', {'title': this.newLabelTitle, 'description': this.textContent}).subscribe((res)=> {
+        if(res.success) {
+          console.log('success');
+          this.textContent = null
+          this.newLabelTitle = null
+          this.noteAdded.emit(res.details);
+          this.modalService.dismissAll()
+          // console.log(this.home?.notes_lst);
+          
+
+        }
+        else {
+          this.toastr.error(res.details)
+        }
+      },(error)=>{
+        this.toastr.error(error)
+        console.log('error')
+      })
+      return 1
+    }
   }
 }
