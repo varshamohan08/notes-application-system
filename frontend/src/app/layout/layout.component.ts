@@ -5,17 +5,19 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { BackendService } from '../backend.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
 import { QuillModule } from 'ngx-quill';
 import { HomeComponent } from '../home/home.component';
 import { EditorComponent } from '../shared/editor/editor.component';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-layout',
@@ -33,6 +35,8 @@ import { EditorComponent } from '../shared/editor/editor.component';
     QuillModule,
     EditorComponent,
     MatMenuModule,
+    MatCheckboxModule,
+    MatChipsModule,
   ],
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
@@ -48,8 +52,12 @@ export class LayoutComponent {
   editingLabel = ''
   newLabelDescription:any=null;
   newLabelTitle:any=null;
+  selectedLabels:any= []
   @ViewChild(HomeComponent) home!: HomeComponent;
   @Output() noteAdded: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild('labels') labelsMenuTrigger!: MatMenuTrigger;
+  @Output() labelAdded = new EventEmitter<void>();
+  @Output() loadNotesByLabels: EventEmitter<any> = new EventEmitter<any>();
 
   textContent:any=null;
 
@@ -77,6 +85,9 @@ export class LayoutComponent {
   }
   ngOnInit(): void {
     this.getLabels()
+    if(localStorage.getItem('active')) {
+      this.setActiveOption(localStorage.getItem('active') || '')
+    }
   }
   getLabels() {
     this.backendService.getData('notes/labels').subscribe((res)=> {
@@ -97,6 +108,7 @@ export class LayoutComponent {
         console.log('success');
         this.label_lst = res.details
         this.newLabel = null
+        this.labelAdded.emit();
       }
       else {
         console.log(res.details);
@@ -178,7 +190,11 @@ export class LayoutComponent {
       return 0
     }
     else {
-      this.backendService.postData('notes/', {'title': this.newLabelTitle, 'description': this.textContent}).subscribe((res)=> {
+      let dctData = {
+        'title': this.newLabelTitle, 
+        'description': this.textContent
+      }
+      this.backendService.postData('notes/', dctData).subscribe((res)=> {
         if(res.success) {
           console.log('success');
           this.textContent = null
@@ -197,6 +213,48 @@ export class LayoutComponent {
         console.log('error')
       })
       return 1
+    }
+  }
+  openLabelsMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    this.labelsMenuTrigger.openMenu();
+  }
+
+  onLabelSelectionChange(label: any, event: MatCheckboxChange): void {
+    // event.stopPropagation(); // Prevent the event from closing the menu
+    if (label.selected) {
+      this.selectedLabels.push(label);
+    } else {
+      this.removeLabel(label)
+    }
+  }
+  removeLabel(label: any) {
+    const index = this.selectedLabels.indexOf(label);
+    if (index > -1) {
+        this.selectedLabels.splice(index, 1);
+    }
+    this.label_lst.forEach((ele:any)=>{
+      if (ele.id == label.id) {
+        ele.selected = false
+      }
+    })
+  }
+
+  refreshPage() {
+    window.location.reload()
+  }
+  loadNotesByLabelsFn(label:any, id:any) {
+    if(id != 0) {
+      localStorage.setItem('page', JSON.stringify(id))
+      localStorage.setItem('active', JSON.stringify(label.name))
+      this.loadNotesByLabels.emit(JSON.stringify(id))
+      this.activeOption = label.name
+    }
+    else {
+      localStorage.setItem('page', label)
+      localStorage.setItem('active', label)
+      this.loadNotesByLabels.emit(label)
+      this.activeOption = label
     }
   }
 }

@@ -14,6 +14,7 @@ class LabelSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['bln_disabled'] = True
         representation['bln_hovered'] = False
+        representation['bln_selected'] = False
         return representation
 
     def create(self, validated_data):
@@ -40,8 +41,9 @@ class LabelSerializer(serializers.ModelSerializer):
 class NoteSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     updated_by = UserSerializer(read_only=True)
-    label = LabelSerializer(read_only=True)
+    labels = LabelSerializer(read_only=True)
     collaborators = UserSerializer(many=True, read_only=True)  # Assuming UserSerializer handles User instances
+    created_date = serializers.DateTimeField(format="%d %B %Y %I:%M %p", read_only=True)
 
     class Meta:
         model = Note
@@ -50,7 +52,7 @@ class NoteSerializer(serializers.ModelSerializer):
             'title',
             'description',
             'collaborators',
-            'label',
+            'labels',
             'bg_color',
             'bg_image',
             'archive_bln',
@@ -66,27 +68,34 @@ class NoteSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation['collaborators'] = UserSerializer(instance.collaborators.all(), many=True).data
+        representation['labels'] = {label.id: label.name for label in instance.labels.all()}
         return representation
 
     def create(self, validated_data):
         request = self.context.get('request')
-        collaborators_data = validated_data.pop('collaborators', [])
+        collaborators_data = validated_data.pop('collaborators', []) or []
+        label_ids = request.data.get('labels', []) or []
         validated_data['created_by'] = request.user
 
         note = Note.objects.create(**validated_data)
         note.collaborators.set(collaborators_data)
+        note.labels.set(label_ids)
         return note
 
     def update(self, instance, validated_data):
         request = self.context.get('request')
-        collaborators_data = validated_data.pop('collaborators', [])
+        collaborators_data = validated_data.pop('collaborators', []) or []
+        label_ids = request.data.get('labels', []) or []
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
-        # instance.updated_by = request.user
+        instance.updated_by = request.user
         instance.save()
-        instance.collaborators.set(collaborators_data)
+        if collaborators_data != []:
+            instance.collaborators.set(collaborators_data)
+        if label_ids != []:
+            instance.labels.set(label_ids)
         return instance
 
     # def validate_bg_color(self, value):

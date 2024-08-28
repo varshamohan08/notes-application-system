@@ -1,22 +1,75 @@
-<app-layout (noteAdded)="onNoteAdded($event)">
+<app-layout (noteAdded)="onNoteAdded($event)" (labelAdded)="refreshLabels()" (loadNotesByLabels)="onLoadNotesByLabelsFn($event)">
   
   <div class="notes-box">
     <div style="position: relative;">
       <div class="notes-container" id="dynamic-container">
         
-        <div *ngFor="let note of notes_lst; let index=index" class="item m-4 card example-ripple-container mat-elevation-z4" [ngStyle]="{'background-color': note.bg_color}" matRipple  (click)="open(notescontent, index)">
+        <div *ngFor="let note of notes_lst; let index=index" class="item m-4 card example-ripple-container mat-elevation-z4" [ngStyle]="{'background-color': note.bg_color}" matRipple>
           <div class="card-header text-muted bg-transparent border-bottom-0">
             {{note.created_date}}
           </div>
-          <div class="card-body pt-1">
+          <div class="card-body py-1" (click)="open(notescontent, index)">
             <h5 class="card-title mb-4">{{note.id}}. {{note.title}}</h5>
-            <p class="card-text item-content text-body-secondary mt-2" [innerHTML]="note.description"></p>
+            <p class="card-text item-content text-body-secondary mt-2 mb-0" [innerHTML]="note.description"></p>
             <a href="#" class="btn-primary btn-read-more">Read more</a>
+            <div class="text-body-secondary" *ngIf="note.labels">
+              <mat-chip-row *ngFor="let label of note.labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+                {{label.value}}
+                <!-- <button matChipRemove [attr.aria-label]="'remove ' + label.name">
+                  <mat-icon>cancel</mat-icon>
+                </button> -->
+              </mat-chip-row>
+            </div>
           </div>
-          <div class="card-footer text-body-secondary" *ngIf="note.label">
-            <mat-chip-set aria-label="Chihuahua traits" *ngFor="let label of note.label">
+          <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="note.active_bln">
+            <!-- <mat-chip-set aria-label="Chihuahua traits" *ngFor="let label of note.label">
               <mat-chip>{{label.name}}</mat-chip>
-            </mat-chip-set>
+            </mat-chip-set> -->
+            <button mat-icon-button class="me-2" aria-label="Notifications">
+              <mat-icon class="fs-5">notifications_none</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2" aria-label="Collaborators">
+              <mat-icon class="fs-5">person_add_outline</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2" aria-label="More">
+              <mat-icon class="fs-5">color_lens_outline</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2" aria-label="Archive" (click)="archiveFn(index)">
+              <mat-icon class="fs-5" *ngIf="note.archive_bln">unarchive</mat-icon>
+              <mat-icon class="fs-5" *ngIf="!note.archive_bln">archive</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+              <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+                <mat-icon>label</mat-icon>
+                <span>Add label</span>
+              </button>
+              <button mat-menu-item (click)="deleteNote(note.id, index)">
+                <mat-icon>delete</mat-icon>
+                <span>Delete note</span>
+              </button>
+            </mat-menu>
+            
+            <mat-menu #labels="matMenu">
+              <button mat-menu-item *ngFor="let label of label_lst">
+                <mat-checkbox 
+                (change)="onLabelSelectionChange(index, label, $event)" 
+                (click)="$event.stopPropagation()" 
+                [checked]="note.labels && note.labels.hasOwnProperty(label.id)">
+                  {{label.name}}
+                </mat-checkbox>
+              </button>
+            </mat-menu>
+          </div>
+          <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="!note.active_bln">
+            <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+              <mat-icon>delete_forever</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2" aria-label="Restore">
+              <mat-icon>restore_from_trash</mat-icon>
+            </button>
           </div>
         </div>
       </div>
@@ -42,9 +95,17 @@
     </div>
     <div class="p-3 rounded box-shadow bg-transparent">
       <app-editor [(textContent)]="textContent"></app-editor>
+      <div class="text-body-secondary px-3" *ngIf="notes_lst[editIndex].labels">
+        <mat-chip-row *ngFor="let label of notes_lst[editIndex].labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+          {{label.value}}
+          <button matChipRemove [attr.aria-label]="'remove ' + label.value" (click)="onLabelSelectionChange(editIndex, label)">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      </div>
     </div>
   </div>
-  <div class="modal-footer p-1 mx-4">
+  <div class="modal-footer p-1 mx-4" *ngIf="notes_lst[editIndex].active_bln">
     <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
       <mat-icon class="fs-5">notifications_none</mat-icon>
     </button>
@@ -54,15 +115,46 @@
     <button mat-icon-button class="me-2" aria-label="More" (click)="modal.dismiss('Cross click')">
       <mat-icon class="fs-5">color_lens_outline</mat-icon>
     </button>
-    <button mat-icon-button class="me-2" aria-label="Archive" (click)="modal.dismiss('Cross click')">
-      <mat-icon class="fs-5">archive_outline</mat-icon>
+    <button mat-icon-button class="me-2" aria-label="Archive" (click)="archiveFn(editIndex)">
+      <mat-icon class="fs-5" *ngIf="notes_lst[editIndex].archive_bln">unarchive</mat-icon>
+      <mat-icon class="fs-5" *ngIf="!notes_lst[editIndex].archive_bln">archive</mat-icon>
     </button>
-    <button mat-icon-button class="me-2" aria-label="More" (click)="modal.dismiss('Cross click')">
-      <mat-icon class="fs-5">more_vert_outline</mat-icon>
+    <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+      <mat-icon>more_vert</mat-icon>
     </button>
+    <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+      <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+        <mat-icon>label</mat-icon>
+        <span>Add label</span>
+      </button>
+      <button mat-menu-item (click)="deleteNote(notes_lst[editIndex].id, editIndex)">
+        <mat-icon>delete</mat-icon>
+        <span>Delete note</span>
+      </button>
+    </mat-menu>
+    
+    <mat-menu #labels="matMenu">
+      <button mat-menu-item *ngFor="let label of label_lst">
+        <mat-checkbox 
+        (change)="onLabelSelectionChange(editIndex, label, $event)" 
+        (click)="$event.stopPropagation()" 
+        [checked]="notes_lst[editIndex].labels && notes_lst[editIndex].labels.hasOwnProperty(label.id)">
+          {{label.name}}
+        </mat-checkbox>
+      </button>
+    </mat-menu>
     <span class="example-spacer"></span>
     <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="editModalDismiss()">Close</button>
     <!-- <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="EditLabel()">Done</button> -->
+  </div>
+  <div class="modal-footer p-1 mx-4" *ngIf="!notes_lst[editIndex].active_bln">
+    <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+      <mat-icon>delete_forever</mat-icon>
+    </button>
+    <button mat-icon-button class="me-2" aria-label="Restore">
+      <mat-icon>restore_from_trash</mat-icon>
+    </button>
+    <span class="example-spacer"></span>
   </div>
 </ng-template>
 <!-- Modal Content End -->

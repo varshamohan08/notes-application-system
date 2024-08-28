@@ -216,7 +216,27 @@ h1.example-app-name {
 }
 ::ng-deep .mat-mdc-list-item.active {
   background: #d2c6ef !important; /* Change this to your desired active color */
+  margin: 2% 0%;
 }
 .example-spacer {
   flex: 1 1 auto;
+}
+.cdk-overlay-container {
+  z-index: 1100;
+}
+
+.mdc-evolution-chip-set__chips {
+  max-width: 100% !important;
+}
+
+.mat-mdc-standard-chip .mdc-evolution-chip__cell--primary,
+.mat-mdc-standard-chip .mdc-evolution-chip__action--primary,
+.mat-mdc-standard-chip .mat-mdc-chip-action-label {
+  overflow: hidden !important;
+}
+.mdc-evolution-chip__text-label {
+  white-space: nowrap;
+  user-select: none;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }

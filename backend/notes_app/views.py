@@ -24,14 +24,26 @@ class NotesAPI(APIView):
             note = get_object_or_404(Note, pk=pk)
             serializer = NoteSerializer(note)
             return Response({"success":True, 'details': serializer.data}, status=status.HTTP_200_OK)
+        if request.GET.get('label'):
+            label = request.GET.get('label')
+            if label == 'Notes':
+                notes = Note.objects.filter(created_by = request.user, archive_bln = False, active_bln = True)
+            elif label == 'Archive':
+                notes = Note.objects.filter(created_by = request.user, archive_bln = True, active_bln = True)
+            elif label == 'Trash':
+                notes = Note.objects.filter(created_by = request.user, active_bln = False)
+            else:
+                notes = Note.objects.filter(created_by = request.user, labels__id = request.GET.get('label'), archive_bln = False, active_bln = True)
+            serializer = NoteSerializer(notes, many=True)
+            return Response({"success":True, 'details': serializer.data}, status=status.HTTP_200_OK)
         else:
-            notes = Note.objects.filter(created_by = request.user)
+            notes = Note.objects.filter(created_by = request.user, archive_bln = False, active_bln = True)
             serializer = NoteSerializer(notes, many=True)
             return Response({"success":True, 'details': serializer.data}, status=status.HTTP_200_OK)
         
 
     def post(self, request):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         serializer = NoteSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
@@ -40,6 +52,7 @@ class NotesAPI(APIView):
         
 
     def put(self, request):
+        # import pdb;pdb.set_trace()
         note = get_object_or_404(Note, pk=request.data.get('id'))
         serializer = NoteSerializer(note, data=request.data, context={'request': request})
         if serializer.is_valid():
@@ -48,9 +61,10 @@ class NotesAPI(APIView):
         return Response({"success":False, 'details': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request):
-        note = get_object_or_404(Note, pk=request.data.get('id'))
-        note.delete()
-        return Response({"success":True, 'details': "Deleted Successfully"}, status=status.HTTP_204_NO_CONTENT)
+        note = get_object_or_404(Note, pk=request.GET.get('pk'))
+        note.active_bln = False
+        note.save()
+        return Response({"success":True, 'details': "Deleted Successfully"}, status=status.HTTP_200_OK)
 
 class LabelsAPI(APIView):
     authentication_classes = [JWTAuthentication]
@@ -63,7 +77,7 @@ class LabelsAPI(APIView):
             serializer = LabelSerializer(label)
             return Response({"success":True, 'details': serializer.data}, status=status.HTTP_200_OK)
         else:
-            labels = Label.objects.filter(created_by = request.user)
+            labels = Label.objects.filter(created_by = request.user).order_by('name')
             serializer = LabelSerializer(labels, many=True)
             return Response({"success":True, 'details': serializer.data}, status=status.HTTP_200_OK)
         

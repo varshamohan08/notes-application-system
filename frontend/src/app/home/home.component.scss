@@ -11,7 +11,7 @@
   border-radius: 3px;
   padding: 20px;
   width: 100%;
-  margin: 40px auto;
+  margin: 0px auto;
   counter-reset: items;
 }
 
@@ -30,6 +30,9 @@
 }
 .item:hover {
   box-shadow: 0px 0px 7px 2px rgb(0 0 0 / 40%);
+  .note-footer {
+    visibility: visible !important;
+  }
 }
 .item-content {
   // max-height: 220px;
@@ -37,6 +40,9 @@
 }
 .btn-read-more {
   display: none;
+}
+.note-footer {
+  visibility: hidden;
 }
 
  /* Just to print out numbers */
@@ -154,4 +160,12 @@ h3 { text-align: center; }
     }
   }
   
+// }
+// .truncate-chip {
+//   max-width: 100%; /* Adjust width based on your design */
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+//   display: inline-block;
+//   vertical-align: middle;
 // }

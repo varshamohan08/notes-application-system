@@ -24,7 +24,7 @@ class Note(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     collaborators = models.ManyToManyField(User, related_name='collaborated_notes', blank=True)
-    label = models.ForeignKey(Label, on_delete=models.DO_NOTHING, blank=True, null=True)
+    labels = models.ManyToManyField(Label, related_name='note_labels', blank=True)
     bg_color = models.CharField(max_length=50, default='transparent')
     bg_image = models.CharField(max_length=200, blank=True, null=True)
     archive_bln = models.BooleanField(default=False)
