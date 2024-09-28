@@ -23,9 +23,9 @@ class Label(models.Model):
 class Note(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
-    collaborators = models.ManyToManyField(User, related_name='collaborated_notes', blank=True)
+    collaborators = models.JSONField(default=list, blank=True)  # JSONField to store list of emails
     labels = models.ManyToManyField(Label, related_name='note_labels', blank=True)
-    bg_color = models.CharField(max_length=50, default='transparent')
+    bg_color = models.CharField(max_length=50, default='white')
     bg_image = models.CharField(max_length=200, blank=True, null=True)
     archive_bln = models.BooleanField(default=False)
     pin_bln = models.BooleanField(default=False)
@@ -47,3 +47,8 @@ class Note(models.Model):
     def clean(self):
         if not self.title:
             raise ValidationError("Title cannot be empty")
+
+    def save(self, *args, **kwargs):
+        if len(self.collaborators) != len(set(self.collaborators)):
+            raise ValidationError("Duplicate emails are not allowed in collaborators")
+        super().save(*args, **kwargs)

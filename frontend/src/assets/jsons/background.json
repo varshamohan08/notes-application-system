@@ -1,0 +1,49 @@
+{
+    "images": [
+        "mountains",
+        "brown",
+        "cele",
+        "food",
+        "grocery",
+        "music",
+        "notes",
+        "places",
+        "recipe",
+        "travel",
+        "video"
+    ],
+    "light": [
+        "transparent",        
+        "#FFCDD2",
+        "#F8BBD0",
+        "#E1BEE7",
+        "#D1C4E9",
+        "#C5CAE9",
+        "#BBDEFB",
+        "#B3E5FC",
+        "#B2EBF2",
+        "#B2DFDB",
+        "#C8E6C9",
+        "#cdceff",
+        "#cdfaff",
+        "#ffffcd",
+        "#d6ff9d"
+    ],
+    "dark": [
+        "transparent",        
+        "#be5c7e",
+        "#a35570",
+        "#895b91",
+        "#695789",
+        "#505788",
+        "#438ac4",
+        "#087cb2",
+        "#2298a7",
+        "#1c8d83",
+        "#2a702c",
+        "#33367e",
+        "#2b737b",
+        "#82822e",
+        "#689825"
+    ]
+}

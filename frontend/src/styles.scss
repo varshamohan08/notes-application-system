@@ -1,4 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'bootstrap-icons/font/bootstrap-icons.css';
 
 /* Global styles */
 html, body {
@@ -8,7 +9,35 @@ html, body {
     // display: flex;
     // justify-content: center; /* Center horizontally */
     // align-items: center;     /* Center vertically */
-    font-family: system-ui !important;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+  }
+
+  /* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #fcf9ff; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #d2c6ef; 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+
+  .mdc-list-item__primary-text {
+    font-family: 'Google Sans', sans-serif !important;
+    font-size: 0.9rem;
   }
   
   /* Specific styles */
@@ -157,6 +186,7 @@ html, body {
 .input-cell {
   width: 100%; /* Adjust as needed */
   padding: 8px 0; /* Adjust as needed */
+  color: black;
 }
 
 .mQXP-BivLOc {
@@ -239,4 +269,599 @@ h1.example-app-name {
   user-select: none;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+.nav-item {
+  border-radius: 0 200px 200px 0 !important;
+  // margin-left: 0 !important;
+
+}
+
+// .modal-content {
+//   background: transparent !important;
+//   background-color: transparent !important;
+//   border: transparent !important;
+// }
+.rounded-8 {
+  border-radius: 0.8rem !important;
+}
+
+.max-width-100 {
+  max-width: 100% !important;
+}
+
+.width-100 {
+  width: 100% !important;
+}
+
+.shadow-blue {
+  box-shadow: 1px 4px 7px #00398433!important;
+}
+
+.shadow-blue-sm {
+  box-shadow: 1px 1px 3px #00398433!important;
+}
+
+.shadow-blue-md {
+  box-shadow: 0px 0px 7px #00398433!important;
+}
+
+.no-data-box {
+  display: flex;
+  width: -webkit-fill-available;
+  height: 75vh;
+  align-content: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+// color palette
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  // padding: 10px;
+}
+
+.color-circle {
+  width: 30px;
+  height: 30px;
+}
+
+.image-circle {
+  width: 40px;
+  height: 40px;
+}
+
+.color-circle, .image-circle {
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.color-circle:hover, .image-circle:hover {
+  border-color: purple;
+}
+
+.selected {
+  border: 2px solid purple !important;
+}
+
+.palette .image-circle img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.checkmark {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: purple;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-size: 10px;
+}
+
+
+
+.checkmark::before {
+  content: "✔";
+  font-size: 10px;
+  color: white;
+}
+// color pallete ends
+
+.profile-box {
+  min-width: 32vh !important;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-content: space-around;
+}
+
+.signin-card {
+  max-width: 90%;
+  width: 950px;
+  background: #beafcdd9 !important;
+  // background: #241633d9;
+  backdrop-filter: blur(3px);
+}
+.example-container mat-form-field + mat-form-field {
+  margin-left: 8px;
+}
+
+.example-right-align {
+  text-align: right;
+}
+
+input.example-right-align::-webkit-outer-spin-button,
+input.example-right-align::-webkit-inner-spin-button {
+  display: none;
+}
+
+input.example-right-align {
+  -moz-appearance: textfield;
+}
+.signin-image-box {
+  width: 100%;
+  text-align: center;
+  height: 100%;
+  align-items: center;
+  display: flex;
+}
+#circle {
+  background: lightblue;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  border-radius: 8px; /* Rounded corners */
+  border: 1px solid #edeff4; /* Light border */
+  margin: 7px 10px; /* Spacing inside the search bar */
+  padding: 0 10px; /* Padding inside the container */
+  transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+  width: 100%;
+  max-width: 800px;
+  background-color: #f7f9fc; /* Slightly lighter background for better contrast */
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  flex: 1; /* Takes up remaining space */
+  padding: 10px; /* Increased padding for better click area */
+  border-radius: 8px; /* Match container radius */
+  background-color: transparent; /* Transparent to match the container */
+  font-size: 16px; /* Font size for readability */
+  color: #23303f; /* Text color */
+}
+
+.search-bar input::placeholder {
+  color: #bbb; /* Softer placeholder text color */
+}
+
+.search-bar input:focus {
+  outline: none; /* No outline on focus */
+}
+
+.search-bar button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0; /* Reset padding */
+  margin-left: 10px;
+  color: #007BFF; /* Button icon color */
+  font-size: 18px; /* Button icon size */
+  transition: color 0.2s ease; /* Smooth color transition */
+}
+
+.search-bar button:hover {
+  color: #0056b3; /* Darker shade on hover */
+}
+
+.search-bar:focus-within {
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5); /* Blue glow when focused */
+  background-color: white; /* White background on focus */
+}
+
+.search-bar:hover {
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Slight shadow on hover */
+  background-color: white; /* White background on hover */
+}
+
+.search-bar .bi-search,
+.search-bar .bi-close {
+  font-size: 20px; /* Larger icons */
+  color: #007BFF; /* Default icon color */
+  cursor: pointer;
+}
+
+.search-bar .bi-search:hover,
+.search-bar .bi-close:hover {
+  color: #0056b3; /* Darker icon color on hover */
+}
+
+
+/* Dark mode styles */
+body.dark {
+  background-color: #1d1933; /* Dark background color */
+  color: #e0e0e0 !important; /* Light text color for contrast */
+
+  --mat-toolbar-container-background-color: #1d1933;
+  --mdc-icon-button-icon-color: #fcf9ff !important;
+  --mat-sidenav-content-background-color: #1d1933;
+  --mat-sidenav-container-background-color: #1d1933;
+  --mat-sidenav-container-text-color: #fcf9ff !important;
+  --mdc-list-list-item-label-text-color: #fcf9ff !important;
+  --mat-app-background-color: #1d1933;
+  --mat-app-text-color: #fcf9ff;
+  --mdc-list-list-item-hover-label-text-color: #fcf9ff;
+  --mdc-list-list-item-focus-label-text-color: #fcf9ff;
+  --mdc-list-list-item-hover-state-layer-color: #fcf9ff;
+  --mdc-list-list-item-hover-state-layer-opacity: 0.08;
+  --bs-secondary-color: #fcf9ff;
+  --mdc-chip-label-text-color: #fcf9ff;
+
+  --bs-modal-bg: #1d1933 !important;
+  --bs-modal-border-color: #1d1933 !important;
+  --mat-tab-header-active-label-text-color: #fcf9ff;
+  --mat-tab-header-inactive-label-text-color: #fcf9ff;
+  --mat-tab-header-active-ripple-color: #fcf9ff;
+  --mat-tab-header-inactive-ripple-color: #fcf9ff;
+  --mat-tab-header-inactive-focus-label-text-color: #fcf9ff;
+  --mat-tab-header-inactive-hover-label-text-color: #fcf9ff;
+  --mat-tab-header-active-focus-label-text-color: #fcf9ff;
+  --mat-tab-header-active-hover-label-text-color: #fcf9ff;
+  --mdc-outlined-text-field-label-text-color: #8c99b8;
+  --mdc-outlined-text-field-hover-label-text-color: #fcf9ff;
+  --mdc-outlined-text-field-disabled-label-text-color: #fcf9ff;
+  --mdc-outlined-text-field-input-text-color: #fcf9ff;
+  --mdc-outlined-text-field-disabled-input-text-color: #fcf9ff;
+  --mdc-outlined-text-field-input-text-placeholder-color: #8c99b8;
+  --mdc-outlined-text-field-error-hover-label-text-color: #410002;
+  --mdc-outlined-text-field-outline-color: #8c99b8;
+  --mat-chip-trailing-action-state-layer-color: #8c99b8;
+  --mdc-chip-with-trailing-icon-trailing-icon-color: #8c99b8;
+  --bs-body-color-rgb: #8c99b8;
+  --mdc-protected-button-container-color: #200e3e;
+  --mat-menu-container-color: #1d1933;
+}
+
+body.dark .selected {
+  border: 2px solid #fcf9ff !important;
+}
+
+body.dark ::-webkit-scrollbar-track {
+  background: #1d1933; 
+}
+body.dark .modal-content {
+  background-color: #1d1933 !important;
+}
+
+body.dark ::-webkit-scrollbar-thumb {
+  background: #423a56; 
+}
+
+/* Global font adjustments for dark mode */
+body.dark, .mdc-list-item__primary-text {
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9rem;
+}
+
+body.dark .example-container {
+  background: #1d1933;
+}
+/* Example shadow-card adjustments */
+body.dark .shadow-card {
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2); /* Lighter shadow for dark background */
+}
+
+body.dark .shadow-card:hover {
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.3);
+}
+
+/* Dark mode hover-items-center */
+body.dark .hover-items-center {
+  border: 1px solid #444; /* Lighter border for dark mode */
+}
+
+/* Dark mode FAB button */
+body.dark .mat-mdc-fab {
+  background: linear-gradient(45deg, #673AB7, #9C27B0); /* Similar contrast in dark mode */
+}
+
+body.dark .mat-mdc-fab:hover {
+  background: linear-gradient(45deg, #9C27B0, #673AB7);
+}
+
+/* Transparent background adjustment */
+body.dark .transparentBack {
+  background-color: transparent;
+}
+
+/* Dark mode for form field outlines */
+body.dark .no-outline {
+  border-bottom: 1px solid #8c99b8; /* Light border for dark mode */
+}
+
+body.dark .no-outline:focus {
+  border-bottom: 1px solid #8c99b8; /* Lighter focus color */
+}
+
+body.dark .no-outline:disabled {
+  border: none; /* Lighter focus color */
+}
+
+/* Dark mode palette color circle hover */
+body.dark .color-circle:hover, body.dark .image-circle:hover {
+  border-color: #fff; /* Light hover effect */
+}
+
+/* Checkmark in dark mode */
+body.dark .checkmark {
+  background-color: #fff; /* White background for checkmark */
+}
+
+body.dark .checkmark::before{
+  color: #121212 !important; /* Dark color for the checkmark */
+}
+
+/* Adjust modal close button */
+body.dark .modal-header .close, body.dark .close {
+  color: #e0e0e0; /* Light close button color */
+}
+
+/* Adjust profile box in dark mode */
+body.dark .profile-box {
+  background-color: #1d1933; /* Dark background for profile boxes */
+}
+
+body.dark .notes-container {
+  display: flex;
+  flex-flow: column wrap;
+  align-content: space-evenly;
+  height: max-content;
+  border-radius: 3px;
+  padding: 20px;
+  width: 100%;
+  margin: 0px auto;
+  counter-reset: items;
+  background-color: #1d1933; /* Dark background color */
+  color: #e0e0e0; /* Light text for contrast */
+}
+
+body.dark .item {
+  width: 24%;
+  position: relative;
+  margin-bottom: 2%;
+  background-color: transparent;
+  box-shadow: none;
+  color: #e0e0e0;
+  background-size: cover;
+  border: 1px solid #555; /* Subtle border for dark mode */
+}
+
+body.dark .item:hover {
+  box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.2); /* Light shadow on hover */
+  .note-footer {
+    visibility: visible !important;
+  }
+}
+
+body.dark .footer-menu:hover {
+  box-shadow: 0px 0px 4px 1px rgba(255, 255, 255, 0.2);
+  .note-footer {
+    visibility: visible !important;
+  }
+}
+
+body.dark .item-content {
+  overflow: hidden;
+  max-height: 220px;
+}
+
+body.dark .note-footer {
+  visibility: hidden;
+}
+
+body.dark div.item::before {
+  color: #e0e0e0;
+}
+
+body.dark .break {
+  flex-basis: 100%;
+  width: 0;
+  border: 1px solid #444; /* Darker border for separation */
+  margin: 0;
+  content: "";
+  padding: 0;
+}
+
+body.dark .notes-box {
+  margin: 0 auto;
+}
+
+body.dark h3 {
+  color: #e0e0e0; /* Light text for headings */
+}
+
+/* Dark mode media queries */
+@media (min-width: 614px) {
+  body.dark .notes-box {
+    max-width: 504px;
+  }
+}
+
+@media (min-width: 840px) {
+  body.dark .notes-box {
+    max-width: 752px;
+  }
+}
+
+@media (min-width: 1100px) {
+  body.dark .notes-box {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1500px) {
+  body.dark .notes-box {
+    max-width: 1248px;
+  }
+}
+
+@media (min-width: 1800px) {
+  body.dark .notes-box {
+    max-width: 1400px;
+  }
+}
+
+@media (min-width: 2200px) {
+  body.dark .notes-box {
+    max-width: 1848px;
+  }
+}
+
+/* Dark mode for chips */
+body.dark .truncate-chip {
+  color: #e0e0e0; /* Light text color */
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Dark mode for strike-through */
+body.dark .strike-through {
+  position: relative;
+  display: inline-block;
+}
+
+body.dark .strike-through::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  transform: rotate(-45deg);
+  transform-origin: 0 0;
+  z-index: 1;
+}
+
+/* Angular Material Menu Dark Mode */
+body.dark ::ng-deep .mat-mdc-menu-item {
+  background-color: #1d1933 !important; /* Dark background for menu items */
+  color: #e0e0e0 !important; /* Light text */
+}
+
+body.dark ::ng-deep .mat-mdc-menu-item:hover {
+  background-color: #100d22 !important; /* Darker hover state */
+}
+
+body.dark ::ng-deep .mat-mdc-menu-panel .mat-mdc-menu-panel:hover {
+  background-color: #1d1933 !important;
+  max-width: fit-content;
+}
+
+body.dark ::ng-deep .mat-mdc-menu-panel {
+  max-width: fit-content !important;
+}
+
+body.dark ::ng-deep .mat-mdc-menu-content {
+  background-color: #231645 !important;
+  color: #e0e0e0 !important; /* Light text inside menu content */
+}
+
+body.dark .shadow-blue {
+  box-shadow: 1px 4px 7px #658cbf9c !important;
+}
+
+body.dark .shadow-blue-sm {
+  box-shadow: 1px 1px 3px #658cbf9c !important;
+}
+
+body.dark .shadow-blue-md {
+  box-shadow: 0px 0px 7px #658cbf9c !important;
+}
+
+body.dark .mat-mdc-list-item.active {
+  background: #1d1933 !important;
+}
+
+body.dark .signin-card {
+  background: #53386dc7 !important;
+}
+
+body.dark .mat-mdc-menu-content {
+  background-color: #1c1236 !important;
+}
+
+body.dark .input-cell {
+  color: #fcf9ff;
+  background-color: #1c1236;
+}
+
+body.dark .mat-mdc-menu-item {
+  background-color: #1d1933 !important;
+}
+
+
+body.dark .search-bar {
+  border: 1px solid #8c99b8; 
+  transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth transition */
+  background-color: #1d1933; /* Slightly lighter background for better contrast */
+}
+
+body.dark .search-bar input {
+  background-color: transparent; /* Transparent to match the container */
+  color: #fcf9ff; /* Text color */
+}
+
+body.dark .search-bar input::placeholder {
+  color: #bbb; /* Softer placeholder text color */
+}
+
+body.dark .search-bar button {
+  color: #007BFF; /* Button icon color */
+}
+
+body.dark .search-bar button:hover {
+  color: #0056b3; /* Darker shade on hover */
+}
+
+body.dark .search-bar:focus-within {
+  box-shadow: #fcf9ff; /* Blue glow when focused */
+  background-color: #1d1933; /* White background on focus */
+}
+
+body.dark .search-bar:hover {
+  box-shadow: #fcf9ff; /* Slight shadow on hover */
+  background-color: #1d1933; /* White background on hover */
+}
+
+body.dark .search-bar .bi-search,
+body.dark .search-bar .bi-close {
+  color: #007BFF; /* Default icon color */
+}
+
+body.dark .search-bar .bi-search:hover,
+body.dark .search-bar .bi-close:hover {
+  color: #0056b3; /* Darker icon color on hover */
 }

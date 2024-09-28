@@ -1,54 +1,217 @@
-<app-layout (noteAdded)="onNoteAdded($event)" (labelAdded)="refreshLabels()" (loadNotesByLabels)="onLoadNotesByLabelsFn($event)">
+<app-layout (noteAdded)="onNoteAdded($event)" (labelAdded)="refreshLabels()" (loadNotesByLabels)="onLoadNotesByLabelsFn($event)" (loadNotesBySearch)="onSearch($event)" (viewChanged)="onViewChangeFn($event)" (pageModeChanged)="onPageModeChangeFn($event)">
   
-  <div class="notes-box">
+  <div class="notes-box" *ngIf="pins_lst.length > 0">
     <div style="position: relative;">
-      <div class="notes-container" id="dynamic-container">
+      <div class="text-secondary w-100 px-4 my-2 fw-bold"><small>PINNED</small></div>
+      <div class="notes-container" id="pinned-container">
         
-        <div *ngFor="let note of notes_lst; let index=index" class="item m-4 card example-ripple-container mat-elevation-z4" [ngStyle]="{'background-color': note.bg_color}" matRipple>
+        <div *ngFor="let note of pins_lst; let index=index" 
+        class="item m-4 card example-ripple-container mat-elevation-z4"
+        [ngStyle]="{
+          'background-color': bg_colors[note.bg_color], 
+          'background-image': note.bg_image?'url(assets/images/bgs/' + pageMode + '-' + note.bg_image + '.svg)':'none'
+        }"
+        matRipple>
           <div class="card-header text-muted bg-transparent border-bottom-0">
-            {{note.created_date}}
+            {{note.created_date}}{{bg_colors[note.bg_color]}}
+            <button mat-icon-button class="bg-transparent justify-content-center note-footer" aria-label="Notifications" style="position: fixed;
+            top: 4%;
+            right: 2%;" (click)="PinsUpdateFn('pin', index)" [matTooltip]="note.pin_bln?'Unpin note':'Pin note'">
+            <mat-icon class="fs-5 text-secondary">push_pin</mat-icon>
+            </button>
           </div>
-          <div class="card-body py-1" (click)="open(notescontent, index)">
+          <div class="card-body py-1" (click)="open(pinscontent, index, 'pin')">
             <h5 class="card-title mb-4">{{note.id}}. {{note.title}}</h5>
             <p class="card-text item-content text-body-secondary mt-2 mb-0" [innerHTML]="note.description"></p>
             <a href="#" class="btn-primary btn-read-more">Read more</a>
             <div class="text-body-secondary" *ngIf="note.labels">
               <mat-chip-row *ngFor="let label of note.labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
                 {{label.value}}
-                <!-- <button matChipRemove [attr.aria-label]="'remove ' + label.name">
-                  <mat-icon>cancel</mat-icon>
-                </button> -->
               </mat-chip-row>
+            </div>
+            <div class="text-body-secondary">
+              <div class="col-1 palette" style="display: contents;">
+                <div class="image-circle shadow-blue-sm me-1" style="width: 25px; height: 25px;" *ngIf="note.collaborated_bln" [matTooltip]="note.created_by.email">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+                <div class="image-circle shadow-blue-sm me-1" 
+                style="width: 25px; height: 25px;" 
+                *ngFor="let email of note.collaborators" 
+                [ngStyle]="{'diaplay':userDetails.email==email?'none':'block'}"
+                [matTooltip]="email">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="note.active_bln">
+            <button mat-icon-button class="me-2 footer-button" aria-label="Notifications" matTooltip="Remind me">
+              <mat-icon class="fs-5">notifications_none</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Collaborators" matTooltip="Collaborator">
+              <mat-icon class="fs-5">person_add_outline</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+              <mat-icon class="fs-5">color_lens_outline</mat-icon>
+            </button>
+            <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;" (click)="$event.stopPropagation();">
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                  <!-- Color Circles -->
+                  <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, index, 'pin', 'color')"  [ngClass]="{'selected': isSelected(color, index, 'pin', 'color')}">
+                    <div [ngClass]="{'checkmark': isSelected(color, index, 'pin', 'color')}"></div>
+                  </div>
+              </div>
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                <!-- Image Circles -->
+                <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, index, 'pin', 'image')}" (click)="changeBackground(null, index, 'pin', 'image')">
+                  <img src="assets/images/bgs/no-image.png" alt="Image 1">
+                  <div [ngClass]="{'checkmark': isSelected(null, index, 'pin', 'image')}"></div>
+                </div>
+                <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, index, 'pin', 'image')}" (click)="changeBackground(image, index, 'pin', 'image')">
+                  <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+                  <div [ngClass]="{'checkmark': isSelected(image, index, 'pin', 'image')}"></div>
+                </div>
+              </div>
+            </mat-menu>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Archive" (click)="PinsUpdateFn('archive', index)" matTooltip="Archive">
+              <mat-icon class="fs-5" *ngIf="note.archive_bln">unarchive</mat-icon>
+              <mat-icon class="fs-5" *ngIf="!note.archive_bln">archive</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="More" [matMenuTriggerFor]="menu" matTooltip="More">
+              <mat-icon class="fs-5">more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;" class="footer-menu">
+              <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+                <mat-icon>label</mat-icon>
+                <span>Add label</span>
+              </button>
+              <button mat-menu-item (click)="deleteNote(note.id, index, 'pin')">
+                <mat-icon>delete</mat-icon>
+                <span>Delete note</span>
+              </button>
+            </mat-menu>
+            
+            <mat-menu #labels="matMenu">
+              <button mat-menu-item *ngFor="let label of label_lst">
+                <mat-checkbox 
+                (change)="onLabelSelectionChange(index, label, $event, 'pin')" 
+                (click)="$event.stopPropagation()" 
+                [checked]="note.labels && note.labels.hasOwnProperty(label.id)">
+                  {{label.name}}
+                </mat-checkbox>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  
+  <div class="notes-box">
+    <div style="position: relative;">
+      <div class="text-secondary w-100 px-4 my-2 fw-bold" *ngIf="pins_lst.length > 0"><small>OTHERS</small></div>
+      <div class="notes-container" id="others-container">
+        
+        <div *ngFor="let note of notes_lst; let index=index" 
+        class="item m-4 card example-ripple-container mat-elevation-z4"
+        [ngStyle]="{
+          'background-color': bg_colors[note.bg_color], 
+          'background-image': note.bg_image?'url(assets/images/bgs/' + pageMode + '-' + note.bg_image + '.svg)':'none'
+        }"
+        matRipple>
+          <div class="card-header text-muted bg-transparent border-bottom-0">
+            {{note.created_date}}
+            <button mat-icon-button class="bg-transparent justify-content-center note-footer" aria-label="Notifications" style="position: fixed;
+            top: 4%;
+            right: 2%;" (click)="updateFn('pin', index)" [matTooltip]="note.pin_bln?'Unpin note':'Pin note'">
+              <mat-icon class="fs-5 text-secondary">push_pin</mat-icon>
+            </button>
+          </div>
+          <div class="card-body py-1" (click)="open(notescontent, index)">
+            <h5 class="card-title mb-4">{{note.id}}. {{note.title}}</h5>
+            <p class="card-text item-content text-body-secondary mt-2 mb-0" [innerHTML]="note.description"></p>
+            <a href="#" class="btn-primary btn-read-more">Read more</a>
+            <div class="text-body-secondary">
+              <span *ngIf="note.labels">
+                <mat-chip-row *ngFor="let label of note.labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+                  {{label.value}}
+                  <!-- <button matChipRemove [attr.aria-label]="'remove ' + label.name">
+                    <mat-icon>cancel</mat-icon>
+                  </button> -->
+                </mat-chip-row>
+              </span>
+            <!-- </div>
+            <div class="text-body-secondary"> -->
+              <div class="col-1 palette" style="display: contents;">
+                <div class="image-circle shadow-blue-sm me-1" style="width: 25px; height: 25px;" *ngIf="note.collaborated_bln" [matTooltip]="note.created_by.email+'(Owner)'">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+                <div class="image-circle shadow-blue-sm me-1" 
+                style="width: 25px; height: 25px;" 
+                *ngFor="let email of note.collaborators" 
+                [ngStyle]="{'display': userDetails.email === email ? 'none' : 'inline-block'}"
+                [matTooltip]="email">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="note.active_bln">
             <!-- <mat-chip-set aria-label="Chihuahua traits" *ngFor="let label of note.label">
               <mat-chip>{{label.name}}</mat-chip>
             </mat-chip-set> -->
-            <button mat-icon-button class="me-2" aria-label="Notifications">
+            <button mat-icon-button class="me-2" aria-label="Notifications" matTooltip="Remind me">
               <mat-icon class="fs-5">notifications_none</mat-icon>
             </button>
-            <button mat-icon-button class="me-2" aria-label="Collaborators">
+            <button mat-icon-button class="me-2" aria-label="Collaborators" matTooltip="Collaborator">
               <mat-icon class="fs-5">person_add_outline</mat-icon>
             </button>
-            <button mat-icon-button class="me-2" aria-label="More">
+            <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
               <mat-icon class="fs-5">color_lens_outline</mat-icon>
             </button>
-            <button mat-icon-button class="me-2" aria-label="Archive" (click)="archiveFn(index)">
-              <mat-icon class="fs-5" *ngIf="note.archive_bln">unarchive</mat-icon>
-              <mat-icon class="fs-5" *ngIf="!note.archive_bln">archive</mat-icon>
+            <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;background-color: white !important;" (click)="$event.stopPropagation();">
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                  <!-- Color Circles -->
+                  <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, index, 'note', 'color')"  [ngClass]="{'selected': isSelected(color, index, 'note', 'color')}">
+                    <div [ngClass]="{'checkmark': isSelected(color, index, 'note', 'color')}"></div>
+                  </div>
+              </div>
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                <!-- Image Circles -->
+                <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, index, 'note', 'image')}" (click)="changeBackground(null, index, 'note', 'image')">
+                  <img src="assets/images/bgs/no-image.png" alt="Image 1">
+                  <div [ngClass]="{'checkmark': isSelected(null, index, 'note', 'image')}"></div>
+                </div>
+                <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, index, 'note', 'image')}" (click)="changeBackground(image, index, 'note', 'image')">
+                  <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+                  <div [ngClass]="{'checkmark': isSelected(image, index, 'note', 'image')}"></div>
+                </div>
+              </div>
+            </mat-menu>
+            <button mat-icon-button class="me-2" aria-label="Archive" (click)="updateFn('archive', index)">
+              <mat-icon class="fs-5" *ngIf="note.archive_bln" matTooltip="Unarchive">unarchive</mat-icon>
+              <mat-icon class="fs-5" *ngIf="!note.archive_bln" matTooltip="Archive">archive</mat-icon>
             </button>
-            <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
-              <mat-icon>more_vert</mat-icon>
+            <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu" matTooltip="More">
+              <mat-icon class="fs-5">more_vert</mat-icon>
             </button>
             <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
               <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
                 <mat-icon>label</mat-icon>
                 <span>Add label</span>
               </button>
-              <button mat-menu-item (click)="deleteNote(note.id, index)">
+              <button mat-menu-item *ngIf="!note.collaborated_bln" (click)="deleteNote(note.id, index)">
                 <mat-icon>delete</mat-icon>
                 <span>Delete note</span>
+              </button>
+              <button mat-menu-item *ngIf="note.collaborated_bln" (click)="deleteNote(note.id, index)">
+                <mat-icon>delete</mat-icon>
+                <span>Remove myself</span>
               </button>
             </mat-menu>
             
@@ -64,10 +227,10 @@
             </mat-menu>
           </div>
           <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="!note.active_bln">
-            <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+            <button mat-icon-button class="me-2" aria-label="Delete Permanantly" matTooltip="Delete Forever">
               <mat-icon>delete_forever</mat-icon>
             </button>
-            <button mat-icon-button class="me-2" aria-label="Restore">
+            <button mat-icon-button class="me-2" aria-label="Restore" matTooltip="Restore">
               <mat-icon>restore_from_trash</mat-icon>
             </button>
           </div>
@@ -77,84 +240,504 @@
     </div>
   </div>
 
+  <div class="notes-box" *ngIf="archives_lst.length > 0">
+    <div style="position: relative;">
+      <div class="text-secondary w-100 px-4 my-2 fw-bold"><small>ARCHIVED</small></div>
+      <div class="notes-container" id="archived-container">
+        
+        <div *ngFor="let note of archives_lst; let index=index" 
+        class="item m-4 card example-ripple-container mat-elevation-z4"
+        [ngStyle]="{
+          'background-color': note.bg_color, 
+          'background-image': note.bg_image?'url(assets/images/bgs/' + pageMode + '-' + note.bg_image + '.svg)':'none'
+        }"
+        matRipple>
+          <div class="card-header text-muted bg-transparent border-bottom-0">
+            {{note.created_date}}
+            <button mat-icon-button class="bg-transparent justify-content-center note-footer" aria-label="Notifications" style="position: fixed;
+            top: 4%;
+            right: 2%;" matTooltip="Unarchive to pin">
+            <mat-icon class="fs-5 text-secondary">push_pin</mat-icon>
+            </button>
+          </div>
+          <div class="card-body py-1" (click)="open(archivecontent, index, 'archive')">
+            <h5 class="card-title mb-4">{{note.id}}. {{note.title}}</h5>
+            <p class="card-text item-content text-body-secondary mt-2 mb-0" [innerHTML]="note.description"></p>
+            <a href="#" class="btn-primary btn-read-more">Read more</a>
+            <div class="text-body-secondary" *ngIf="note.labels">
+              <mat-chip-row *ngFor="let label of note.labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+                {{label.value}}
+              </mat-chip-row>
+            </div>
+            <div class="text-body-secondary">
+              <div class="col-1 palette" style="display: contents;">
+                <div class="image-circle shadow-blue-sm me-1" style="width: 25px; height: 25px;" *ngIf="note.collaborated_bln" [matTooltip]="note.created_by.email">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+                <div class="image-circle shadow-blue-sm me-1" 
+                style="width: 25px; height: 25px;" 
+                *ngFor="let email of note.collaborators" 
+                [ngStyle]="{'diaplay':userDetails.email==email?'none':'block'}"
+                [matTooltip]="email">
+                  <img src="assets/images/user.png" alt="Image 2">
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer note-footer text-body-secondary pt-0 pb-1 px-1 bg-transparent border-0" *ngIf="note.active_bln">
+            <button mat-icon-button class="me-2 footer-button" aria-label="Notifications" matTooltip="Remind me">
+              <mat-icon class="fs-5">notifications_none</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Collaborators" matTooltip="Collaborator">
+              <mat-icon class="fs-5">person_add_outline</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+              <mat-icon class="fs-5">color_lens_outline</mat-icon>
+            </button>
+            <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;background-color: white !important;" (click)="$event.stopPropagation();">
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                  <!-- Color Circles -->
+                  <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, index, 'archive', 'color')"  [ngClass]="{'selected': isSelected(color, index, 'archive', 'color')}">
+                    <div [ngClass]="{'checkmark': isSelected(color, index, 'archive', 'color')}"></div>
+                  </div>
+              </div>
+              <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+                <!-- Image Circles -->
+                <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, index, 'archive', 'image')}" (click)="changeBackground(null, index, 'archive', 'image')">
+                  <img src="assets/images/bgs/no-image.png" alt="Image 1">
+                  <div [ngClass]="{'checkmark': isSelected(null, index, 'archive', 'image')}"></div>
+                </div>
+                <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, index, 'archive', 'image')}" (click)="changeBackground(image, index, 'archive', 'image')">
+                  <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+                  <div [ngClass]="{'checkmark': isSelected(image, index, 'archive', 'image')}"></div>
+                </div>
+              </div>
+            </mat-menu>
+            <button mat-icon-button class="me-2 footer-button" aria-label="Archive" (click)="ArchiveUpdateFn('archive', index)" matTooltip="Archive">
+              <mat-icon class="fs-5" *ngIf="note.archive_bln">unarchive</mat-icon>
+              <mat-icon class="fs-5" *ngIf="!note.archive_bln">archive</mat-icon>
+            </button>
+            <button mat-icon-button class="me-2 footer-button" aria-label="More" [matMenuTriggerFor]="menu" matTooltip="More">
+              <mat-icon class="fs-5">more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;" class="footer-menu">
+              <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+                <mat-icon>label</mat-icon>
+                <span>Add label</span>
+              </button>
+              <button mat-menu-item (click)="deleteNote(note.id, index, 'archive')">
+                <mat-icon>delete</mat-icon>
+                <span>Delete note</span>
+              </button>
+            </mat-menu>
+            
+            <mat-menu #labels="matMenu">
+              <button mat-menu-item *ngFor="let label of label_lst">
+                <mat-checkbox 
+                (change)="onLabelSelectionChange(index, label, $event, 'archive')" 
+                (click)="$event.stopPropagation()" 
+                [checked]="note.labels && note.labels.hasOwnProperty(label.id)">
+                  {{label.name}}
+                </mat-checkbox>
+              </button>
+            </mat-menu>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="no-data-box" *ngIf="archives_lst.length <= 0 && notes_lst.length <= 0">
+    <img src="assets/no-data.gif">
+  </div>
+
+
 </app-layout>
 
  <!-- Notes Modal Content Start -->
  <ng-template #notescontent let-modal>
-   
-  <button mat-icon-button class="close" aria-label="Close" (click)="editModalDismiss()" style="position: absolute;
-  top: -5%;
-  right: -3%;
-  z-index: 999;">
-    <mat-icon class="fs-5">close</mat-icon>
-  </button>
-  
-  <div class="modal-body m-0 p-0">
-    <div class="mt-4 px-4" style="display: flex;">
-      <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="labelTitle" style="flex: 1 1 auto;">
-    </div>
-    <div class="p-3 rounded box-shadow bg-transparent">
-      <app-editor [(textContent)]="textContent"></app-editor>
-      <div class="text-body-secondary px-3" *ngIf="notes_lst[editIndex].labels">
-        <mat-chip-row *ngFor="let label of notes_lst[editIndex].labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
-          {{label.value}}
-          <button matChipRemove [attr.aria-label]="'remove ' + label.value" (click)="onLabelSelectionChange(editIndex, label)">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
+  <div class="rounded-3" style="background-size: cover;"
+  [ngStyle]="{
+      'background-color': notes_lst[editIndex].bg_color, 
+      'background-image': notes_lst[editIndex].bg_image?'url(assets/images/bgs/' + pageMode + '-' + notes_lst[editIndex].bg_image + '.svg)':'none'
+    }">
+
+    <button mat-icon-button class="close" aria-label="Close" (click)="editModalDismiss('note')" style="position: absolute;
+    top: -5%;
+    right: -3%;
+    z-index: 999;">
+      <mat-icon class="fs-5">close</mat-icon>
+    </button>
+    
+    <div class="modal-body bg-transparent bg-transparent m-0 p-0">
+      <div class="mt-4 px-4" style="display: flex;">
+        <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="labelTitle" style="flex: 1 1 auto;">
+      </div>
+      <div class="p-3 rounded box-shadow bg-transparent">
+        <app-editor [(textContent)]="textContent"></app-editor>
+        <div class="text-body-secondary px-3" *ngIf="notes_lst[editIndex].labels">
+          <mat-chip-row *ngFor="let label of notes_lst[editIndex].labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+            {{label.value}}
+            <button matChipRemove [attr.aria-label]="'remove ' + label.value" (click)="onLabelSelectionChange(editIndex, label)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="modal-footer p-1 mx-4" *ngIf="notes_lst[editIndex].active_bln">
-    <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
-      <mat-icon class="fs-5">notifications_none</mat-icon>
-    </button>
-    <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="modal.dismiss('Cross click')">
-      <mat-icon class="fs-5">person_add_outline</mat-icon>
-    </button>
-    <button mat-icon-button class="me-2" aria-label="More" (click)="modal.dismiss('Cross click')">
-      <mat-icon class="fs-5">color_lens_outline</mat-icon>
-    </button>
-    <button mat-icon-button class="me-2" aria-label="Archive" (click)="archiveFn(editIndex)">
-      <mat-icon class="fs-5" *ngIf="notes_lst[editIndex].archive_bln">unarchive</mat-icon>
-      <mat-icon class="fs-5" *ngIf="!notes_lst[editIndex].archive_bln">archive</mat-icon>
-    </button>
-    <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
-      <mat-icon>more_vert</mat-icon>
-    </button>
-    <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
-      <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
-        <mat-icon>label</mat-icon>
-        <span>Add label</span>
+    <div class="modal-footer p-1 mx-4" *ngIf="notes_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">notifications_none</mat-icon>
       </button>
-      <button mat-menu-item (click)="deleteNote(notes_lst[editIndex].id, editIndex)">
-        <mat-icon>delete</mat-icon>
-        <span>Delete note</span>
+      <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">person_add_outline</mat-icon>
       </button>
-    </mat-menu>
-    
-    <mat-menu #labels="matMenu">
-      <button mat-menu-item *ngFor="let label of label_lst">
-        <mat-checkbox 
-        (change)="onLabelSelectionChange(editIndex, label, $event)" 
-        (click)="$event.stopPropagation()" 
-        [checked]="notes_lst[editIndex].labels && notes_lst[editIndex].labels.hasOwnProperty(label.id)">
-          {{label.name}}
-        </mat-checkbox>
+      <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+        <mat-icon class="fs-5">color_lens_outline</mat-icon>
       </button>
-    </mat-menu>
-    <span class="example-spacer"></span>
-    <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="editModalDismiss()">Close</button>
-    <!-- <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="EditLabel()">Done</button> -->
-  </div>
-  <div class="modal-footer p-1 mx-4" *ngIf="!notes_lst[editIndex].active_bln">
-    <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
-      <mat-icon>delete_forever</mat-icon>
-    </button>
-    <button mat-icon-button class="me-2" aria-label="Restore">
-      <mat-icon>restore_from_trash</mat-icon>
-    </button>
-    <span class="example-spacer"></span>
-  </div>
+      <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;" (click)="$event.stopPropagation();">
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+            <!-- Color Circles -->
+            <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, editIndex, 'note', 'color')"  [ngClass]="{'selected': isSelected(color, editIndex, 'note', 'color')}">
+              <div [ngClass]="{'checkmark': isSelected(color, editIndex, 'note', 'color')}"></div>
+            </div>
+        </div>
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+          <!-- Image Circles -->
+          <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, editIndex, 'note', 'image')}" (click)="changeBackground(null, editIndex, 'note', 'image')">
+            <img src="assets/images/bgs/no-image.png" alt="Image 1">
+            <div [ngClass]="{'checkmark': isSelected(null, editIndex, 'note', 'image')}"></div>
+          </div>
+          <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, editIndex, 'note', 'image')}" (click)="changeBackground(image, editIndex, 'note', 'image')">
+            <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+            <div [ngClass]="{'checkmark': isSelected(image, editIndex, 'note', 'image')}"></div>
+          </div>
+        </div>
+      </mat-menu>
+      <button mat-icon-button class="me-2" aria-label="Archive" (click)="updateFn('archive', editIndex)">
+        <mat-icon class="fs-5" *ngIf="notes_lst[editIndex].archive_bln">unarchive</mat-icon>
+        <mat-icon class="fs-5" *ngIf="!notes_lst[editIndex].archive_bln">archive</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+        <mat-icon class="fs-5">more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+        <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+          <mat-icon>label</mat-icon>
+          <span>Add label</span>
+        </button>
+        <button mat-menu-item (click)="deleteNote(notes_lst[editIndex].id, editIndex)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete note</span>
+        </button>
+      </mat-menu>
+      
+      <mat-menu #labels="matMenu">
+        <button mat-menu-item *ngFor="let label of label_lst">
+          <mat-checkbox 
+          (change)="onLabelSelectionChange(editIndex, label, $event)" 
+          (click)="$event.stopPropagation()" 
+          [checked]="notes_lst[editIndex].labels && notes_lst[editIndex].labels.hasOwnProperty(label.id)">
+            {{label.name}}
+          </mat-checkbox>
+        </button>
+      </mat-menu>
+      <span class="example-spacer"></span>
+      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="editModalDismiss('note')">Close</button>
+      <!-- <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="EditLabel()">Done</button> -->
+    </div>
+    <div class="modal-footer p-1 mx-4" *ngIf="!notes_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="Restore" (click)="deleteNote(notes_lst[editIndex].id, editIndex, '','restore')">
+        <mat-icon>restore_from_trash</mat-icon>
+      </button>
+      <span class="example-spacer"></span>
+    </div>
+   </div>
+  
 </ng-template>
 <!-- Modal Content End -->
+
+<!-- Pinned Notes Modal Content Start -->
+<ng-template #pinscontent let-modal>
+  <div class="rounded-3" style="background-size: cover;"
+  [ngStyle]="{
+      'background-color': pins_lst[editIndex].bg_color, 
+      'background-image': pins_lst[editIndex].bg_image?'url(assets/images/bgs/' + pageMode + '-' + pins_lst[editIndex].bg_image + '.svg)':'none'
+    }">
+    <button mat-icon-button class="close" aria-label="Close" (click)="editModalDismiss('pin')" style="position: absolute;
+    top: -5%;
+    right: -3%;
+    z-index: 999;">
+      <mat-icon class="fs-5">close</mat-icon>
+    </button>
+    
+    <div class="modal-body bg-transparent bg-transparent m-0 p-0">
+      <div class="mt-4 px-4" style="display: flex;">
+        <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="labelTitle" style="flex: 1 1 auto;">
+      </div>
+      <div class="p-3 rounded box-shadow bg-transparent">
+        <app-editor [(textContent)]="textContent"></app-editor>
+        <div class="text-body-secondary px-3" *ngIf="pins_lst[editIndex].labels">
+          <mat-chip-row *ngFor="let label of pins_lst[editIndex].labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+            {{label.value}}
+            <button matChipRemove [attr.aria-label]="'remove ' + label.value" (click)="onLabelSelectionChange(editIndex, label)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer p-1 mx-4" *ngIf="pins_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">notifications_none</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">person_add_outline</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+        <mat-icon class="fs-5">color_lens_outline</mat-icon>
+      </button>
+      <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;background-color: white !important;" (click)="$event.stopPropagation();">
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+            <!-- Color Circles -->
+            <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, editIndex, 'pin', 'color')"  [ngClass]="{'selected': isSelected(color, editIndex, 'pin', 'color')}">
+              <div [ngClass]="{'checkmark': isSelected(color, editIndex, 'pin', 'color')}"></div>
+            </div>
+        </div>
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+          <!-- Image Circles -->
+          <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, editIndex, 'pin', 'image')}" (click)="changeBackground(null, editIndex, 'pin', 'image')">
+            <img src="assets/images/bgs/no-image.png" alt="Image 1">
+            <div [ngClass]="{'checkmark': isSelected(null, editIndex, 'pin', 'image')}"></div>
+          </div>
+          <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, editIndex, 'pin', 'image')}" (click)="changeBackground(image, editIndex, 'pin', 'image')">
+            <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+            <div [ngClass]="{'checkmark': isSelected(image, editIndex, 'pin', 'image')}"></div>
+          </div>
+        </div>
+      </mat-menu>
+      <button mat-icon-button class="me-2" aria-label="Archive" (click)="updateFn('archive', editIndex)">
+        <mat-icon class="fs-5" *ngIf="pins_lst[editIndex].archive_bln">unarchive</mat-icon>
+        <mat-icon class="fs-5" *ngIf="!pins_lst[editIndex].archive_bln">archive</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+        <mat-icon class="fs-5">more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+        <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+          <mat-icon>label</mat-icon>
+          <span>Add label</span>
+        </button>
+        <button mat-menu-item (click)="deleteNote(pins_lst[editIndex].id, editIndex)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete note</span>
+        </button>
+      </mat-menu>
+      
+      <mat-menu #labels="matMenu">
+        <button mat-menu-item *ngFor="let label of label_lst">
+          <mat-checkbox 
+          (change)="onLabelSelectionChange(editIndex, label, $event)" 
+          (click)="$event.stopPropagation()" 
+          [checked]="pins_lst[editIndex].labels && pins_lst[editIndex].labels.hasOwnProperty(label.id)">
+            {{label.name}}
+          </mat-checkbox>
+        </button>
+      </mat-menu>
+      <span class="example-spacer"></span>
+      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="editModalDismiss('pin')">Close</button>
+      <!-- <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="EditLabel()">Done</button> -->
+    </div>
+    <div class="modal-footer p-1 mx-4" *ngIf="!pins_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="Restore" (click)="deleteNote(pins_lst[editIndex].id, editIndex, '','restore')">
+        <mat-icon>restore_from_trash</mat-icon>
+      </button>
+      <span class="example-spacer"></span>
+    </div>
+  </div>
+
+</ng-template>
+<!-- Modal Content End -->
+
+<!-- Pinned Notes Modal Content Start -->
+<ng-template #archivecontent let-modal>
+  <div class="rounded-3" style="background-size: cover;"
+  [ngStyle]="{
+      'background-color': archives_lst[editIndex].bg_color, 
+      'background-image': archives_lst[editIndex].bg_image?'url(assets/images/bgs/' + pageMode + '-' + archives_lst[editIndex].bg_image + '.svg)':'none'
+    }">
+    <button mat-icon-button class="close" aria-label="Close" (click)="editModalDismiss('archive')" style="position: absolute;
+    top: -5%;
+    right: -3%;
+    z-index: 999;">
+      <mat-icon class="fs-5">close</mat-icon>
+    </button>
+    
+    <div class="modal-body bg-transparent bg-transparent m-0 p-0">
+      <div class="mt-4 px-4" style="display: flex;">
+        <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="labelTitle" style="flex: 1 1 auto;">
+      </div>
+      <div class="p-3 rounded box-shadow bg-transparent">
+        <app-editor [(textContent)]="textContent"></app-editor>
+        <div class="text-body-secondary px-3" *ngIf="archives_lst[editIndex].labels">
+          <mat-chip-row *ngFor="let label of archives_lst[editIndex].labels | keyvalue" class="mt-2 me-2 border-0"  color="primary">
+            {{label.value}}
+            <button matChipRemove [attr.aria-label]="'remove ' + label.value" (click)="onLabelSelectionChange(editIndex, label)">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer p-1 mx-4" *ngIf="archives_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">notifications_none</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="modal.dismiss('Cross click')">
+        <mat-icon class="fs-5">person_add_outline</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+        <mat-icon class="fs-5">color_lens_outline</mat-icon>
+      </button>
+      <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;background-color: white !important;" (click)="$event.stopPropagation();">
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+            <!-- Color Circles -->
+            <div class="color-circle mx-1" *ngFor="let color of bg_colors; let i=index" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="changeBackground(i, editIndex, 'archive', 'color')"  [ngClass]="{'selected': isSelected(color, editIndex, 'archive', 'color')}">
+              <div [ngClass]="{'checkmark': isSelected(color, editIndex, 'archive', 'color')}"></div>
+            </div>
+        </div>
+        <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+          <!-- Image Circles -->
+          <div class="image-circle mx-1" [ngClass]="{'selected': isSelected(null, editIndex, 'archive', 'image')}" (click)="changeBackground(null, editIndex, 'archive', 'image')">
+            <img src="assets/images/bgs/no-image.png" alt="Image 1">
+            <div [ngClass]="{'checkmark': isSelected(null, editIndex, 'archive', 'image')}"></div>
+          </div>
+          <div class="image-circle mx-1" *ngFor="let image of bg_images" [ngClass]="{'selected': isSelected(image, editIndex, 'archive', 'image')}" (click)="changeBackground(image, editIndex, 'archive', 'image')">
+            <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+            <div [ngClass]="{'checkmark': isSelected(image, editIndex, 'archive', 'image')}"></div>
+          </div>
+        </div>
+      </mat-menu>
+      <button mat-icon-button class="me-2" aria-label="Archive" (click)="ArchiveUpdateFn('archive', editIndex)">
+        <mat-icon class="fs-5" *ngIf="archives_lst[editIndex].archive_bln">unarchive</mat-icon>
+        <mat-icon class="fs-5" *ngIf="!archives_lst[editIndex].archive_bln">archive</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+        <mat-icon class="fs-5">more_vert</mat-icon>
+      </button>
+      <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+        <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+          <mat-icon>label</mat-icon>
+          <span>Add label</span>
+        </button>
+        <button mat-menu-item (click)="deleteNote(archives_lst[editIndex].id, editIndex)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete note</span>
+        </button>
+      </mat-menu>
+      
+      <mat-menu #labels="matMenu">
+        <button mat-menu-item *ngFor="let label of label_lst">
+          <mat-checkbox 
+          (change)="onLabelSelectionChange(editIndex, label, $event)" 
+          (click)="$event.stopPropagation()" 
+          [checked]="archives_lst[editIndex].labels && archives_lst[editIndex].labels.hasOwnProperty(label.id)">
+            {{label.name}}
+          </mat-checkbox>
+        </button>
+      </mat-menu>
+      <span class="example-spacer"></span>
+      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="editModalDismiss('archive')">Close</button>
+      <!-- <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="EditLabel()">Done</button> -->
+    </div>
+    <div class="modal-footer p-1 mx-4" *ngIf="!archives_lst[editIndex].active_bln">
+      <button mat-icon-button class="me-2" aria-label="Delete Permanantly">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+      <button mat-icon-button class="me-2" aria-label="Restore" (click)="deleteNote(archives_lst[editIndex].id, editIndex, '','restore')">
+        <mat-icon>restore_from_trash</mat-icon>
+      </button>
+      <span class="example-spacer"></span>
+    </div>
+  </div>
+
+</ng-template>
+<!-- Modal Content End -->
+
+<!-- Collaborators Modal Content Start -->
+<ng-template #collabcontent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title m-0 px-1" id="modal-basic-title">Collaborators</h5>
+    <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body m-0 p-0">
+    <div class="p-1 rounded box-shadow">
+
+      <div class="row my-2 mx-1 fs-6">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0">
+          <label class="small" for="owner">{{userDetails.first_name}} {{userDetails.last_name}}<span class="fst-italic">(Owner)</span></label>
+          <p class="text-body fw-bold p-0 m-0" name="owner">{{userDetails.email}}</p>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell"><mat-icon>x</mat-icon></button>
+        </div>
+      </div>
+
+
+      <div class="row my-2 mx-1 fs-6" *ngFor="let user of collaborator_lst; let i = index">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0 d-flex align-content-center flex-wrap">
+          <p class="text-body fw-bold p-0 m-0" name="owner">{{user}}</p>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell" (click)="removeCollaborator(i)"><mat-icon>close</mat-icon></button>
+        </div>
+      </div>
+      
+      <!-- Input for adding a new collaborator -->
+      <div class="row my-2 mx-1 fs-6">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0">
+          <input type="text" class="no-outline input-cell" placeholder="Enter collaborator email" [(ngModel)]="collaborator_email" (ngModelChange)="validateEmail()">
+          <small *ngIf="emailError" class="text-danger">{{emailError}}</small>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell" (click)="addCollaborator()" [disabled]="emailError || !collaborator_email"><mat-icon>check</mat-icon></button>
+        </div>
+      </div>
+      
+
+    </div>
+  </div>
+  <div class="modal-footer p-2">
+    <button mat-raised-button extended class="rounded-3 p-4 fs-6 m-0" (click)="modal.close('Save click')">Done</button>
+  </div>
+</ng-template>
+<!-- Collaborators Modal Content End -->

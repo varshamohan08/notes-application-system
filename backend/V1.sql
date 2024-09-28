@@ -1,0 +1,2 @@
+CREATE DATABASE notes_app;
+GRANT ALL PRIVILEGES ON DATABASE notes_app TO admin;

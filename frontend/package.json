@@ -25,6 +25,7 @@
     "@angular/router": "^18.2.1",
     "@angular/ssr": "^18.2.1",
     "@ng-bootstrap/ng-bootstrap": "^17.0.0",
+    "bootstrap-icons": "^1.11.3",
     "express": "^4.19.2",
     "localstorage-polyfill": "^1.0.1",
     "ng-bootstrap": "^1.6.3",

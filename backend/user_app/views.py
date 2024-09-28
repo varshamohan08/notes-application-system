@@ -55,11 +55,11 @@ class userLogin(APIView):
 class userLogout(APIView):
     def get(self, request):
         logout(request)
-        return Response({'details': 'Success'}, status=status.HTTP_200_OK)
+        return Response({"success":True, 'details': 'Success'}, status=status.HTTP_200_OK)
 
 class userSignUp(APIView):
     def post(self, request):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         with transaction.atomic():
             user_serializer = UserSerializer(data=request.data)
             

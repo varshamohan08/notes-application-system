@@ -85,7 +85,7 @@ export class SignInComponent {
         console.log(res);
         if(res.success) {
           console.log('success');
-          this.authService.setToken(res.access_token, res.user_details)
+          this.authService.setToken(res.access_token, res.userdetails)
           setTimeout(() => {
             console.log(this.authService.isAuthenticated());
             
@@ -119,7 +119,7 @@ export class SignInComponent {
                 
                 new Promise((resolve) => {
                   localStorage.setItem('access_token', res.access_token);
-                  localStorage.setItem('userdetails', JSON.stringify(res.user_details));
+                  localStorage.setItem('userdetails', JSON.stringify(res.userdetails));
                   resolve(localStorage.getItem('access_token') == res.access_token);
                 }).then(() => {
                   this.router.navigateByUrl('');

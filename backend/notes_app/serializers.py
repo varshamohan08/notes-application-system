@@ -38,11 +38,12 @@ class LabelSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Name cannot be empty")
         return value
+
 class NoteSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
     updated_by = UserSerializer(read_only=True)
-    labels = LabelSerializer(read_only=True)
-    collaborators = UserSerializer(many=True, read_only=True)  # Assuming UserSerializer handles User instances
+    labels = LabelSerializer(many=True, read_only=True)
+    collaborators = serializers.ListField(child=serializers.EmailField(), read_only=True)
     created_date = serializers.DateTimeField(format="%d %B %Y %I:%M %p", read_only=True)
 
     class Meta:
@@ -67,41 +68,54 @@ class NoteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        representation['collaborators'] = UserSerializer(instance.collaborators.all(), many=True).data
-        representation['labels'] = {label.id: label.name for label in instance.labels.all()}
+        representation['collaborators'] = [email for email in instance.collaborators]
+
+        request = self.context.get('request')
+        if request:
+            representation['collaborated_bln'] = request.user != instance.created_by and request.user.email in instance.collaborators
+
+        representation['labels'] = {label.id: label.name for label in instance.labels.all() if request.user.id == label.created_by.id}
+
         return representation
 
     def create(self, validated_data):
+        # import pdb;pdb.set_trace()
         request = self.context.get('request')
-        collaborators_data = validated_data.pop('collaborators', []) or []
+        collaborators_emails = request.data.get('collaborators', []) or []
         label_ids = request.data.get('labels', []) or []
         validated_data['created_by'] = request.user
 
         note = Note.objects.create(**validated_data)
-        note.collaborators.set(collaborators_data)
+        note.collaborators = collaborators_emails
         note.labels.set(label_ids)
+        note.save()
         return note
 
     def update(self, instance, validated_data):
         request = self.context.get('request')
-        collaborators_data = validated_data.pop('collaborators', []) or []
-        label_ids = request.data.get('labels', []) or []
+        collaborators_emails = request.data.get('collaborators', [])
+        label_ids = request.data.get('labels', [])
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
         instance.updated_by = request.user
+        instance.collaborators = collaborators_emails
+        instance.labels.set(label_ids)
+
+        if instance.archive_bln and instance.pin_bln:
+            instance.pin_bln= False
+
         instance.save()
-        if collaborators_data != []:
-            instance.collaborators.set(collaborators_data)
-        if label_ids != []:
-            instance.labels.set(label_ids)
         return instance
 
-    # def validate_bg_color(self, value):
-    #     if value and not value.startswith('#'):
-    #         raise serializers.ValidationError("Background color must be a valid hex color code")
-    #     return value
+    def validate_collaborators(self, value):
+        if not isinstance(value, list):
+            raise serializers.ValidationError("Collaborators must be a list")
+        for email in value:
+            if not isinstance(email, str) or '@' not in email:
+                raise serializers.ValidationError(f"Invalid email address: {email}")
+        return value
 
     def validate_title(self, value):
         if not value:

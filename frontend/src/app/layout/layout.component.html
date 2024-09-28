@@ -1,5 +1,5 @@
 <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
-  <mat-toolbar class="example-toolbar">
+  <mat-toolbar class="card m-3 mb-2 width-auto shadow-blue-sm example-toolbar">
     <button mat-icon-button (click)="hideSideNav = !hideSideNav"><mat-icon>menu</mat-icon></button>
     <h3 class="mt-1">
       {{activeOption}}
@@ -9,167 +9,326 @@
       <mat-icon>add</mat-icon>
     </button>
     </div>
+    <!-- <span class="example-spacer"></span> -->
+     &nbsp;&nbsp;&nbsp;
+    <div class="search-bar fw-6">
+      <button type="button" style="margin-left: 5px;" (click)="onSearch()"><i class="bi bi-search"></i></button>
+      <input type="text" class="fw-6" placeholder="Search..." [(ngModel)]="searchQuery" (ngModelChange)="onSearch()">
+      <button type="button" (click)="exitSearch()"><i class="bi bi-x-lg"></i></button>
+    </div>
+     
     <span class="example-spacer"></span>
-    <button mat-icon-button class="example-icon mx-2" aria-label="Example icon-button with sunny icon">
-        <mat-icon>sunny</mat-icon>
+    <button mat-icon-button class="example-icon mx-2" (click)="bln_list_view = !bln_list_view; viewChangedFn()">
+        <mat-icon *ngIf="!bln_list_view">view_stream</mat-icon>
+        <mat-icon *ngIf="bln_list_view">view_module</mat-icon>
     </button>
-    <button mat-icon-button class="example-icon mx-2" aria-label="Example icon-button with bedtime icon">
-        <mat-icon>bedtime</mat-icon>
+    <button mat-icon-button class="example-icon mx-2" (click)="bln_light_mode = !bln_light_mode; pageModeFn()">
+        <mat-icon *ngIf="!bln_light_mode">sunny</mat-icon>
+        <mat-icon *ngIf="bln_light_mode">bedtime</mat-icon>
     </button>
-    <button mat-icon-button class="example-icon mx-2 refresh-icon" aria-label="Example icon-button with refresh icon" (click)="refreshPage()">
+    <button mat-icon-button class="example-icon mx-2 refresh-icon"(click)="refreshPage()">
         <mat-icon>refresh</mat-icon>
     </button>
-    <button mat-icon-button class="example-icon mx-2" aria-label="Example icon-button with person icon">
-        <mat-icon>person</mat-icon>
+    <!-- Trigger Button with Person Icon -->
+    <button mat-icon-button class="example-icon mx-2" [matMenuTriggerFor]="bgMenuUser">
+      <mat-icon>person</mat-icon>
     </button>
+
+    <!-- Profile Menu -->
+    <mat-menu #bgMenuUser="matMenu" yPosition="below" class="p-0 rounded-8 shadow-blue-md" style="background-color: white !important;" (click)="$event.stopPropagation()">
+      <div class="profile-box p-2 pb-0 d-flex flex-column align-items-center">
+        <!-- Profile Image with Circular Border -->
+        <div class="profile-image rounded-circle shadow-blue-sm mb-3" style="position: relative;">
+          <img class="rounded-circle p-1" style="width: 115px;" src="assets/images/user.png" alt="User Image">
+          <div class="image-overlay"></div>
+        </div>
+        
+        <!-- User Greeting with Styling -->
+        <p class="mt-2 mb-0 fw-bold text-secondary" style="font-size: 16px;">
+          Hi, {{userDetails.first_name}} {{userDetails.last_name}}
+        </p>
+        <small class="text-muted">{{userDetails.email}}</small>
+        <mat-nav-list class="width-100">
+          <a mat-list-item>
+            <span matListItemTitle>User Profile</span>
+            <!-- <span matLine>Add to a note</span> -->
+          </a>
+        
+          <a mat-list-item (click)="logOut()" matRipple>
+            <span matListItemTitle>Logout</span>
+            <!-- <span matLine>Embed in a document</span> -->
+          </a>
+        </mat-nav-list>
+        
+      </div>
+    </mat-menu>
+
   </mat-toolbar>
 
-  <mat-sidenav-container class="example-sidenav-container"
-                        [style.marginTop.px]="mobileQuery.matches ? 56 : 0">
-    <mat-sidenav #snav mode="side" fixedTopGap="56" class="shadow-sm" style="width: 32vh;" [opened]="!hideSideNav">
+  <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="mobileQuery.matches ? 56 : 0" style="scrollbar-width: thin;">
+    <mat-sidenav #snav mode="side" fixedTopGap="56" class="shadow-blue-sm" style="width: 32vh;" [opened]="!hideSideNav" (opened)="getLabels()">
       <mat-nav-list>
-        <a mat-list-item class="mx-2 width-auto"
-           [class.active]="activeOption === 'Notes'"
-           (click)="loadNotesByLabelsFn('Notes', 0)">Notes</a>
-        <a mat-list-item class="mx-2 width-auto"
-           [class.active]="activeOption === 'Reminders'"
-           (click)="setActiveOption('Reminders')">Reminders</a>
-        <a mat-list-item class="mx-2 width-auto"
-           [class.active]="activeOption === 'Edit Labels'"
-           (click)="open(content, 'sm', 'Edit Labels')">Edit Labels</a>
-
-        <a mat-list-item class="mx-2 width-auto" *ngFor="let label of label_lst"
-           [class.active]="activeOption === label.name"
-           (click)="loadNotesByLabelsFn(label.name, label.id)">{{label.name}}</a>
-
-        <a mat-list-item class="mx-2 width-auto"
-           [class.active]="activeOption === 'Archive'"
-           (click)="loadNotesByLabelsFn('Archive', 0)">Archive</a>
-        <a mat-list-item class="mx-2 width-auto"
-           [class.active]="activeOption === 'Trash'"
-           (click)="loadNotesByLabelsFn('Trash', 0)">Trash</a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item"
+            [class.active]="activeOption === 'Notes'"
+            (click)="loadNotesByLabelsFn('Notes', 0)">
+            &nbsp;<i class="bi bi-stickies"></i>&nbsp;&nbsp;
+          Notes
+        </a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item"
+            [class.active]="activeOption === 'Reminders'"
+            (click)="setActiveOption('Reminders')">
+            &nbsp;<i class="bi bi-bell"></i>&nbsp;&nbsp;
+          Reminders
+        </a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item"
+            (click)="open(content, 'sm', 'Edit Labels')">
+            &nbsp;<i class="bi bi-pencil"></i>&nbsp;&nbsp;
+          Edit Labels
+        </a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item" *ngFor="let label of label_lst"
+            [class.active]="activeOption === label.name"
+            (click)="loadNotesByLabelsFn(label.name, label.id)">
+            &nbsp;<i class="bi bi-tag"></i>&nbsp;&nbsp;
+            {{label.name}}
+        </a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item"
+            [class.active]="activeOption === 'Archive'"
+            (click)="loadNotesByLabelsFn('Archive', 0)">
+            &nbsp;<i class="bi bi-archive"></i>&nbsp;&nbsp;
+          Archive
+        </a>
+        <a mat-list-item class="px-4 me-2 width-auto nav-item"
+            [class.active]="activeOption === 'Trash'"
+            (click)="loadNotesByLabelsFn('Trash', 0)">
+            &nbsp;<i class="bi bi-trash"></i>&nbsp;&nbsp;
+          Trash
+        </a>
       </mat-nav-list>
     </mat-sidenav>
+                        
 
     <mat-sidenav-content>
       <ng-content></ng-content>
     </mat-sidenav-content>
   </mat-sidenav-container>
-  <!-- Modal Content Start -->
-  <ng-template #content let-modal>
-    <div class="modal-header">
-      <h5 class="modal-title m-0 px-1" id="modal-basic-title">Edit labels</h5>
-      <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
-        <mat-icon>close</mat-icon>
-      </button>
-    </div>
-    <div class="modal-body m-0 p-0">
-      <div class="bg-white p-1 rounded box-shadow">
-        <!-- <table class="table table-borderless m-0">
-          <thead class="table-light">
-          </thead>
-          <tbody> -->
-            <div class="row my-3 mx-1 fs-6">
-              <div class="mx-1 col-1" style="display: contents;">
-                <button mat-icon-button class="icon-cell" *ngIf="isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>close</mat-icon></button>
-                <button mat-icon-button class="icon-cell" *ngIf="!isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>add</mat-icon></button>
-              </div>
-              <div class="mx-1 col p-0">
-                <input type="text" class="no-outline input-cell" placeholder="Create new label" [(ngModel)]="newLabel" [disabled]="!isAddLabel">
-              </div>
-              <div class="mx-1 col-1" style="display: contents;">
-                <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="!isAddLabel"><mat-icon> </mat-icon></button>
-                <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="isAddLabel"><mat-icon>check</mat-icon></button>
-              </div>
-            </div>
-            <div class="row my-2 mx-1 fs-6" *ngFor="let label of label_lst; let i = index" (mouseover)="label.bln_hovered = true" (mouseout)="label.bln_hovered = false">
-              <div class="mx-1 col-1" style="display: contents;">
-                <button mat-icon-button class="icon-cell" *ngIf="!label.bln_hovered"><mat-icon>label</mat-icon></button>
-                <button mat-icon-button class="icon-cell" *ngIf="label.bln_hovered" (click)="deleteLabel(i)"><mat-icon>delete</mat-icon></button>
-              </div>
-              <!-- <div class="mx-1 col-1" class="m-0 px-1 input-cell fs-5" id="label-{{label.id}}">{{label.name}}</div> -->
-              <div class="mx-1 col p-0" id="label-{{label.id}}">
-                <input type="text" class="no-outline input-cell" placeholder="Create new label" [(ngModel)]="label.name" [disabled]="label.bln_disabled">
-              </div>
-              <div class="mx-1 col-1" style="display: contents;">
-                <button mat-icon-button class="icon-cell" *ngIf="label.bln_disabled" (click)="enableEdit(i)"><mat-icon>edit</mat-icon></button>
-                <button mat-icon-button class="icon-cell" *ngIf="!label.bln_disabled" (click)="editLabel(i)"><mat-icon>save</mat-icon></button>
-              </div>
-            </div>
-          <!-- </tbody>
-        </table> -->
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button mat-raised-button extended class="rounded-3 p-4 fs-6" (click)="modal.close('Save click')">Done</button>
-    </div>
-  </ng-template>
-  <!-- Modal Content End -->
 </div>
 
-
-  <!-- Notes Modal Content Start -->
-  <ng-template #notescontent let-modal>
-   
-    <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="position: absolute;
-    top: -6%;
-    right: -4%;
-    z-index: 999;">
-      <mat-icon class="fs-5">close</mat-icon>
+<!-- Edit Labels Modal Content Start -->
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title m-0 px-1" id="modal-basic-title">Edit labels</h5>
+    <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <mat-icon>close</mat-icon>
     </button>
-    
-    <div class="modal-body m-0 p-0">
-      <div class="mt-3 px-4" style="display: flex;">
-        <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="newLabelTitle" style="flex: 1 1 auto;">
+  </div>
+  <div class="modal-body m-0 p-0">
+    <div class="p-1 rounded box-shadow">
+      <!-- <table class="table table-borderless m-0">
+        <thead class="table-light">
+        </thead>
+        <tbody> -->
+          <div class="row my-3 mx-1 fs-6">
+            <div class="mx-1 col-1" style="display: contents;">
+              <button mat-icon-button class="icon-cell" *ngIf="isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>close</mat-icon></button>
+              <button mat-icon-button class="icon-cell" *ngIf="!isAddLabel" (click)="isAddLabel = !isAddLabel"><mat-icon>add</mat-icon></button>
+            </div>
+            <div class="mx-1 col p-0">
+              <input type="text" class="no-outline input-cell" placeholder="Create new label" [(ngModel)]="newLabel" [disabled]="!isAddLabel">
+            </div>
+            <div class="mx-1 col-1" style="display: contents;">
+              <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="!isAddLabel"><mat-icon> </mat-icon></button>
+              <button mat-icon-button class="icon-cell" [disabled]="newLabel==null || newLabel==undefined || newLabel==''" (click)="addLabels()" *ngIf="isAddLabel"><mat-icon>check</mat-icon></button>
+            </div>
+          </div>
+          <div class="row my-2 mx-1 fs-6" *ngFor="let label of label_lst; let i = index" (mouseover)="label.bln_hovered = true" (mouseout)="label.bln_hovered = false">
+            <div class="mx-1 col-1" style="display: contents;">
+              <button mat-icon-button class="icon-cell" *ngIf="!label.bln_hovered"><mat-icon>label</mat-icon></button>
+              <button mat-icon-button class="icon-cell" *ngIf="label.bln_hovered" (click)="deleteLabel(i)"><mat-icon>delete</mat-icon></button>
+            </div>
+            <!-- <div class="mx-1 col-1" class="m-0 px-1 input-cell fs-5" id="label-{{label.id}}">{{label.name}}</div> -->
+            <div class="mx-1 col p-0" id="label-{{label.id}}">
+              <input type="text" class="no-outline input-cell" placeholder="Create new label" [(ngModel)]="label.name" [disabled]="label.bln_disabled">
+            </div>
+            <div class="mx-1 col-1" style="display: contents;">
+              <button mat-icon-button class="icon-cell" *ngIf="label.bln_disabled" (click)="enableEdit(i)"><mat-icon>edit</mat-icon></button>
+              <button mat-icon-button class="icon-cell" *ngIf="!label.bln_disabled" (click)="editLabel(i)"><mat-icon>save</mat-icon></button>
+            </div>
+          </div>
+        <!-- </tbody>
+      </table> -->
+    </div>
+  </div>
+  <div class="modal-footer p-2">
+    <button mat-raised-button extended class="rounded-3 p-4 fs-6 m-0" (click)="modal.close('Save click')">Done</button>
+  </div>
+</ng-template>
+<!-- Edit Labels Modal Content End -->
+
+
+<!-- Notes Modal Content Start -->
+<ng-template #notescontent let-modal>
+  <div class="rounded-3" [ngStyle]="{
+    'background-color': bg_color, 
+    'background-image': 'url(assets/images/bgs/' + pageMode + '-' + bg_image + '.svg)'
+  }">
+  
+  <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')" style="position: absolute;
+  top: -6%;
+  right: -4%;
+  z-index: 999;">
+    <mat-icon class="fs-5">close</mat-icon>
+  </button>
+  
+  <div class="modal-body m-0 p-0">
+    <div class="mt-3 px-4" style="display: flex;">
+      <input type="text" class="no-outline input-cell fs-5 bg-transparent" placeholder="Create new label" [(ngModel)]="newLabelTitle" style="flex: 1 1 auto;">
+    </div>
+    <div class="p-3 rounded box-shadow bg-transparent">
+      <app-editor [(textContent)]="textContent"></app-editor>
+      <div class="text-body-secondary">
+        <mat-chip-row *ngFor="let label of selectedLabels" (removed)="removeLabel(label)"class="mx-2">
+          {{label.name}}
+          <button matChipRemove [attr.aria-label]="'remove ' + label.name">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
       </div>
-      <div class="p-3 rounded box-shadow bg-transparent">
-        <app-editor [(textContent)]="textContent"></app-editor>
-        <div class="text-body-secondary">
-          <mat-chip-row *ngFor="let label of selectedLabels" (removed)="removeLabel(label)"class="mx-2">
-            {{label.name}}
-            <button matChipRemove [attr.aria-label]="'remove ' + label.name">
-              <mat-icon>cancel</mat-icon>
-            </button>
-          </mat-chip-row>
+      <div class="text-body-secondary">
+        <div class="me-2 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1" style="width: 30px; height: 30px;" *ngFor="let email of collaborator_lst" [matTooltip]="email">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="modal-footer p-1 mx-4">
-      <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
-        <mat-icon class="fs-5">notifications_none</mat-icon>
-      </button>
-      <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="modal.dismiss('Cross click')">
-        <mat-icon class="fs-5">person_add_outline</mat-icon>
-      </button>
-      <button mat-icon-button class="me-2" aria-label="More" (click)="modal.dismiss('Cross click')">
-        <mat-icon class="fs-5">color_lens_outline</mat-icon>
-      </button>
-      <button mat-icon-button class="me-2" aria-label="Archive" (click)="modal.dismiss('Cross click')">
-        <mat-icon class="fs-5">archive_outline</mat-icon>
-      </button>
-      <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
-        <mat-icon>more_vert</mat-icon>
-      </button>
+  </div>
+  <div class="modal-footer p-1 mx-4">
+    <button mat-icon-button class="me-2" aria-label="Notifications" (click)="modal.dismiss('Cross click')">
+      <mat-icon class="fs-5">notifications_none</mat-icon>
+    </button>
+    <button mat-icon-button class="me-2" aria-label="Collaborators" (click)="open(collabcontent, 'md', 'Collaborators')">
+      <mat-icon class="fs-5">person_add_outline</mat-icon>
+    </button>
+    <button mat-icon-button class="me-2 footer-button" aria-label="Background" [matMenuTriggerFor]="bgMenu" (click)="$event.stopPropagation();">
+      <mat-icon class="fs-5">color_lens_outline</mat-icon>
+    </button>
+    <mat-menu #bgMenu="matMenu" yPosition="below" class="max-width-100 p-0 footer-menu" style="height: fit-content;background-color: white !important;" (click)="$event.stopPropagation();">
+      <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+          <!-- Color Circles -->
+          <div class="color-circle mx-1" *ngFor="let color of bg_colors" [style.background-color]="color" [ngStyle]="{'border': color=='white' ? '2px solid whitesmoke' : ''}" (click)="bg_color=color"  [ngClass]="{'selected': isSelected(color, 'color')}">
+            <div [ngClass]="{'checkmark': isSelected(color, 'color')}"></div>
+          </div>
+      </div>
+      <div mat-menu-item class="palette" (click)="$event.stopPropagation();" disableRipple>
+        <!-- Image Circles -->
+        <div class="image-circle mx-1" (click)="bg_image=null" [ngClass]="{'selected': isSelected(null, 'image')}">
+          <img src="assets/images/bgs/no-image.png" alt="Image 1">
+          <div [ngClass]="{'checkmark': isSelected(null, 'image')}"></div>
+        </div>
+        <div class="image-circle mx-1" *ngFor="let image of bg_images" (click)="bg_image=image" [ngClass]="{'selected': isSelected(image, 'image')}">
+          <img src="assets/images/bgs/{{pageMode}}-{{image}}.svg" alt="Image 2">
+          <div [ngClass]="{'checkmark': isSelected(image, 'image')}"></div>
+        </div>
+      </div>
+    </mat-menu>
+    <button mat-icon-button class="me-2" aria-label="Archive" [matTooltip]="bln_archive?'Unarchive':'Archive'" (click)="bln_archive=!bln_archive">
+      <mat-icon class="fs-5" *ngIf="bln_archive">unarchive</mat-icon>
+      <mat-icon class="fs-5" *ngIf="!bln_archive">archive</mat-icon>
+    </button>
+    <button mat-icon-button class="me-2" aria-label="More" [matMenuTriggerFor]="menu">
+      <mat-icon class="fs-5">more_vert</mat-icon>
+    </button>
 
-      <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
-        <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
-          <mat-icon>label</mat-icon>
-          <span>Add label</span>
-        </button>
-      </mat-menu>
+    <mat-menu #menu="matMenu" xPosition="after" style="z-index: 9999;">
+      <button mat-menu-item [matMenuTriggerFor]="labels" (click)="openLabelsMenu($event)">
+        <mat-icon>label</mat-icon>
+        <span>Add label</span>
+      </button>
+    </mat-menu>
+    
+    <mat-menu #labels="matMenu">
+      <button mat-menu-item *ngFor="let label of label_lst">
+        <mat-checkbox [(ngModel)]="label.selected" (change)="onLabelSelectionChange(label, $event)" (click)="$event.stopPropagation()">
+          {{label.name}}
+        </mat-checkbox>
+      </button>
+    </mat-menu>
+    
+    
+    <span class="example-spacer"></span>
+    <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="modal.close('Save click')">Cancel</button>
+    <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="saveNewLabel()">Done</button>
+  </div>
+  </div>
+</ng-template>
+<!-- Notes Modal Content End -->
+
+<!-- Collaborators Modal Content Start -->
+<ng-template #collabcontent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title m-0 px-1" id="modal-basic-title">Collaborators</h5>
+    <button mat-icon-button class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <div class="modal-body m-0 p-0">
+    <div class="p-1 rounded box-shadow">
+
+      <div class="row my-2 mx-1 fs-6">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0">
+          <label class="small" for="owner">{{userDetails.first_name}} {{userDetails.last_name}}<span class="fst-italic">(Owner)</span></label>
+          <p class="text-body fw-bold p-0 m-0" name="owner">{{userDetails.email}}</p>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell"><mat-icon>x</mat-icon></button>
+        </div>
+      </div>
+
+
+      <div class="row my-2 mx-1 fs-6" *ngFor="let user of collaborator_lst; let i = index">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0 d-flex align-content-center flex-wrap">
+          <p class="text-body fw-bold p-0 m-0" name="owner">{{user}}</p>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell" (click)="removeCollaborator(i)"><mat-icon>close</mat-icon></button>
+        </div>
+      </div>
       
-      <mat-menu #labels="matMenu">
-        <button mat-menu-item *ngFor="let label of label_lst">
-          <mat-checkbox [(ngModel)]="label.selected" (change)="onLabelSelectionChange(label, $event)" (click)="$event.stopPropagation()">
-            {{label.name}}
-          </mat-checkbox>
-        </button>
-      </mat-menu>
+      <!-- Input for adding a new collaborator -->
+      <div class="row my-2 mx-1 fs-6">
+        <div class="mx-1 col-1 palette" style="display: contents;">
+          <div class="image-circle shadow-blue-sm mx-1">
+            <img src="assets/images/user.png" alt="Image 2">
+            <div></div>
+          </div>
+        </div>
+        <div class="mx-1 col p-0">
+          <input type="text" class="no-outline input-cell" placeholder="Enter collaborator email" [(ngModel)]="collaborator_email" (ngModelChange)="validateEmail()">
+          <small *ngIf="emailError" class="text-danger">{{emailError}}</small>
+        </div>
+        <div class="mx-1 col-1" style="display: contents;">
+          <button mat-icon-button class="icon-cell" (click)="addCollaborator()" [disabled]="emailError || !collaborator_email"><mat-icon>check</mat-icon></button>
+        </div>
+      </div>
       
-      
-      <span class="example-spacer"></span>
-      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="modal.close('Save click')">Cancel</button>
-      <button mat-raised-button extended class="rounded-3 py-2 px-3 me-0 ml-4" (click)="saveNewLabel()">Done</button>
+
     </div>
-  </ng-template>
-  <!-- Modal Content End -->
+  </div>
+  <div class="modal-footer p-2">
+    <button mat-raised-button extended class="rounded-3 p-4 fs-6 m-0" (click)="modal.close('Save click')">Done</button>
+  </div>
+</ng-template>
+<!-- Collaborators Modal Content End -->
